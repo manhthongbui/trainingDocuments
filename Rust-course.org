@@ -1,0 +1,698 @@
+#+title: Rust Course
+#+author: Dang Quang Vu
+#+description: Rust languages courses
+
+* Introduction Rust Languages
+** Why Rust?
+- Rust có các tính năng của ngôn ngữ bật cao, nhưng lại không có ảnh hưởng nhiều
+  về hiệu suất.
+- Rust cho phép trình biên dịch thực thi các behaviors của chương trình.
+  + Điều này giúp tăng đáng kể độ tin cậy của program.
+- Nó có khả năng quản lý các gói package dễ dàng, tương tự như npm trong javascript.
+- Các thư viện có thể sử dụng trong các program một cách dễ dàng.
+- Cộng đồng developer thận thiện và mạnh mẽ.
+- Ứng dụng mạnh mẽ trong blockchain.
+** Một vài tính năng khác biệt so với ngôn ngữ khác
+- Hỗ trợ =First-class multithreading.=
+  + Compiler giúp phát hiện lỗi truy cập dữ liệu không đúng cách, điều này giúp
+    việc viết code đa luồng một cách dễ dàng hơn.
+- Compiler của Rust là một hệ thống rất mạnh, nó đủ mạnh để phát hiện ra các lỗi
+  type system.
+  + Việc phát hiện lỗi trong compile time giúp việc tái cấu trúc và fix lỗi một
+    cách dễ dàng hơn.
+  + Nó sẽ giúp bạn giảm số lần tesing cần thiết để đảm bảo code của bạn chạy
+    chính sác.
+  + Rust có một hệ thống modules system với các quy tắc linh hoạt cho phép bạn
+    quản lý code thành nhiều file một cách đơn giản.
+- Cách thêm một dependency rất dễ dàng với chỉ 1 dòng trong file cấu hình.
+  + Với việc chỉ cần tên gói package và version của package.
+  + Package sẽ được tự động tải xuống và liên kết với dự án trong lần compile
+    tiếp theo.
+- Rust cung cấp các tool rất thuận lợi như:
+  + Generate docs, Lint Code, Auto format.
+
+** Installation
+- Windown:
+  + Trên Windows, truy cập =https://www.rust-lang.org/tools/install= và làm theo
+    hướng dẫn để cài Rust. Bạn cũng sẽ cần C++ build tools cho =Visual Studio 2013=
+    hoặc mới hơn. Cách dễ nhất là cài Build Tools for Visual Studio 2019. Hãy đảm
+    bảo “C++ build tools” được chọn.
+- Linux & MacOs
+  + Install with =Command line=
+    #+begin_src
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+    #+end_src
+
+  + Bạn cần phải cài thêm C Compiler vì một số package của Rust được viết
+    bằng C.
+    #+begin_src
+// install on MacOs
+xcode-select --install
+    #+end_src
+
+** Run a program with Rust
+- Khởi tạo dự án:
+  #+begin_src
+cargo init nameproject
+  #+end_src
+
+- Cấu trúc Project rust:
+  #+begin_src
+  - src
+    + main.rs/lib.rs
+  - Cargo.toml
+  #+end_src
+
+- Run a Project
+  #+begin_src
+$ rustc src/main.rs
+$ ./main
+output: Hello World!
+  #+end_src
+
+** What is Cargo?
+- Cargo là hệ thống build và quản lý thư viện của Rust. Hầu hết =Rust coder -
+  Rustaceans= đều sử dụng Cargo để quản lý project của họ bởi vì Cargo xử lý
+  nhiều tác vụ cho bạn ví dụ như: build code, tải thư viện, và build những thư
+  viện đó. (Chúng ta gọi những thư viện mà code của bạn cần là những
+  dependency.)
+#+begin_src
+$ cargo new ...
+$ cargo build
+$ cargo run
+$ cargo check
+#+end_src
+
+* Common Programming Concepts
+** Data Types
+- Hãy nhớ rằng Rust là ngôn ngữ định kiểu tĩnh (statically typed), Tức là Rust
+  phải biết được kiểu dữ liệu của tất cả các biến tại thời điểm biên dịch.
+- Boolean: true/false
+- Double/Float: 1.2, 5.5, 200.001, 2.0.
+- Character: 'a', 'b', 'z', '6', '$'.
+- String: "Hello", "string here", "this is a string".
+- Integer: 1,2,3,51,21,-2.
+|---------+--------+-----------|
+| Độ dài   | Signed | Unsigned  |
+|---------+--------+-----------|
+| 8-bit   | i8     | u8        |
+| 16-bit  | i16    | u16       |
+| 32-bit  | i32    | u32       |
+| 64-bit  | i64    | u64       |
+| 128-bit | i128   | u128      |
+| arch    | isize  | usize     |
+|---------+--------+-----------|
+
+** Variables - Biến.
+- Khởi tạo bộ nhớ tạm và gán dữ liệu như một địa chỉ lưu trú giúp developer dễ
+  dàng tìm kiếm và sử dụng các dữ liệu đó.
+- Khởi tạo biến nó luôn luôn được mặc đình là biến =immutable=, nó không thể thay
+  đổi trong quá trình run-program.
+#+begin_src rust
+fn main() {
+    let immutable = 1;
+    let mut mutable = "hello";
+}
+#+end_src
+
+** Function
+- Một cách để =đóng gói= các một chức năng của project.
+#+begin_src rust
+fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+fn main() {
+    let result = add(2,3);
+    // println! macro
+    println!("result = {}", result);
+}
+#+end_src
+
+#+begin_src
+: result = 5
+#+end_src
+
+** println macro
+- "Prints" =displays= các thông tin lên trên terminal.
+- Mục đích thường được sử dụng cho =debugging=.
+
+#+begin_src rust
+fn main() {
+    println!("Hello World!");
+    print!("Ok1");
+}
+#+end_src
+
+#+begin_src
+: Hello World!
+#+end_src
+
+** Control Flow using "if"
+#+begin_src rust
+fn main() {
+   let a = 99;
+    if a > 99 {
+        println!("lon hon 99");
+    } else if a < 99 {
+        println!("nho hon 99");
+    } else {
+        println!("bang 99");
+    }
+}
+#+end_src
+
+#+begin_src
+: bang 99
+#+end_src
+
+** Using Loops ( loop/while )
+- Using loops
+  #+begin_src rust
+fn main() {
+    let mut a = 0;
+    loop {
+        if a == 5 {
+            break;
+        }
+        println!("{}", a);
+        a += 1;
+    }
+}
+  #+end_src
+
+  #+begin_src
+  : 0
+  : 1
+  : 2
+  : 3
+  : 4
+  #+end_src
+- Using while
+  #+begin_src rust
+fn main() {
+    let mut a = 0;
+    // while true {..doing..}
+    while a != 5 {
+        println!("{}", a);
+        a += 1;
+    }
+}
+  #+end_src
+
+  #+begin_src
+  : 0
+  : 1
+  : 2
+  : 3
+  : 4
+  #+end_src
+
+** =Match=
+- Semilar to if...else
+- Add logic to program
+
+#+begin_src rust
+fn main() {
+    let info = "1Dang";
+    match info {
+        "Dang" => println!("Dang Quang Vu"),
+        "Quang" => println!("Quang Vu"),
+        "Vu" => println!("Vu"),
+        _ => println!("not my name"),
+    }
+}
+#+end_src
+
+#+begin_src
+: Dang Quang Vu
+#+end_src
+
+- =Prefer match over if..else= khi lầm việc với =single variables=.
+
+** Basic arithmetic
+  #+begin_src rust
+fn main() {
+    let sum = 2 + 4;
+    let subtract = 10 - 4;
+    let division = 10/2;
+    let mult = 4 * 2;
+    let rem = 6 % 3;
+}
+  #+end_src
+
+* Working with Data
+** Enumeration ( Enum )
+- Enums cho phép bạn có thể định nghĩa một kiểu dữ liệu bằng cách liệt kê các kiểu
+dữ liệu của nó.
+- Mỗi dữ liệu có trong 1 enum đó còn được gọi là 1 "variant".
+#+begin_src rust
+enum Direction {
+    Up,
+    Down,
+    Right,
+    Left
+}
+
+fn main() {
+    let go = Direction::Up;
+    match go {
+        Direction::Up => println!("up"),
+        Direction::Down => println!("down"),
+        Direction::Right => println!("right"),
+        Direction::Left => println!("left"),
+    }
+}
+
+#+end_src
+
+#+begin_src
+: up
+#+end_src
+
+** Struct
+- Structure Có thể coi là một kiểu dữ liệu mà lập trình viên tự định nghĩa, được
+  tạo ra để nhóm các giá trị có mối liên hệ với nhau và tạo thành một tập giá
+  trị có ý nghĩa.
+- Nếu bạn đã quen thuộc với lập trình hướng đối tượng (object-oriented
+  language - OOP), struct giống như khái niệm object ở trong đó.
+
+#+begin_src rust
+#[derive(Debug)]
+enum Contries {
+    Japan,
+    Germany,
+    American,
+}
+
+#[derive(Debug)]
+struct CarBrand {
+    name: String,
+    created: i32,
+    brand: Contries,
+}
+
+fn main(){
+    let my_car = CarBrand{
+        name: "Lambogini Urus".to_owned(),
+        created: 2022,
+        brand: Contries::Germany,
+    };
+    println!("{:?}", my_car);
+    println!("name car: {}", my_car.name);
+}
+
+#+end_src
+
+#+begin_src
+: CarBrand { name: "Lambogini Urus", created: 2022, brand: Germany }
+: Lambogini Urus
+#+end_src
+
+** Tuples
+- Tuple là cách để nhóm một số giá trị tương ứng với những =kiểu dữ
+  liệu khác nhau lại=.
+- Tuples có độ dài cố định: một khi được khai báo, chúng ta không thể tăng hoặc
+  giảm kích thước của chúng.
+- Là kiêu dữ liệu dùng để "record".
+- Có thể =lưu trữ ẩn danh= ( Không cần sử dụng =tên trường= )
+- Hữu ích để trả về các cặp dữ liệu từ function.
+- Có thể dễ dàng =destructured= thành các biến.
+
+#+begin_src rust
+fn number() -> (i32, i32, i32) {
+    (4,3,2)
+}
+
+fn main() {
+    let list = number();
+    let (x,y,z) = number();
+    println!("{}, {}", x, list.0);
+    println!("{}, {}", y, list.1);
+    println!("{}, {}", z, list.2);
+
+    let (name, age) = ("Vu", 27);
+    println!("{}, {}", name, age);
+
+    let favorites = ("Watching TV", "Music", "Football", "Travel");
+    let sport = favorites.2;
+    println!("{}", sport);
+
+}
+
+#+end_src
+
+#+begin_src
+: 4, 4
+: 3, 3
+: 2, 2
+: Vu, 27
+: Football
+#+end_src
+
+** Expression
+- Rust là ngôn ngữ dạng Expression-based
+  + Hầu hết mọi thứ đều được đánh giá và return lại một giá trị nào đó.
+
+#+begin_src rust
+fn main() {
+    let number = 3;
+    let what_my_number = if number < 5 {
+        true
+    } else {
+        false
+    };
+
+    let what_my_number2 = number < 5;
+    println!("{:?}", what_my_number2);
+}
+#+end_src
+
+#+begin_src
+: true
+#+end_src
+
+- RESULT:
+  #+begin_src rust
+fn main() {
+    let number = 3;
+    let message = match number {
+        1 => "Hello",
+        _ => "OK",
+    };
+    println!("{}", message);
+}
+  #+end_src
+
+  #+begin_src
+  : OK
+  #+end_src
+
+- Examples:
+  #+begin_src rust
+enum Access {
+    Admin,
+    Client,
+    Manager,
+}
+
+fn main() {
+    let access = Access::Client;
+    let auth = match access {
+        Access::Admin => "Can Access",
+        _ => "Denied!",
+    };
+    println!("{}", auth);
+}
+  #+end_src
+
+  #+begin_src
+  : Denied!
+  #+end_src
+
+* Stack & Heap
+- Cả stack và heap đều là những phần bộ nhớ có sẵn cho code của bạn để sử dụng
+  trong runtime, nhưng chúng được cấu trúc theo những cách khác nhau.
+
+- Stack lưu trữ lưu trữ các giá trị theo thứ tự mà nó nhận được và xóa các giá
+  trị theo thứ tự ngược lại. Điều này được gọi là last in, first out (Vào sau,
+  ra trước).
+- Tất cả dữ liệu được lưu trữ trên stack phải có kích thước cố định (fixed
+  size), đã biết.
+- Thay vào đó dữ liệu có kích thước không xác định (unknown size) tại thời điểm
+  biên dịch hoặc kích thước có thể thay đổi phải được lưu trữ trên heap.
+- Heap ít được tổ chức hơn: khi bạn đặt dữ liệu trên heap, bạn gửi yêu cầu một
+  khoảng trống nhất định trong bộ nhớ. Bộ cấp phát bộ nhớ tìm thấy một chỗ trống
+  trên heap đủ lớn, đánh dấu nó là đang được sử dụng, và trả về một con trỏ, đó
+  là địa chỉ cuả vị trí đó.
+- Quá trình này được gọi là allocating on the heap (cấp phát trên heap) và đôi
+  khi được viết tắt là allocating (việc đẩy các giá trị vào stack không được coi
+  là cấp phát).
+- Vì con trỏ tới heap có kích thước cố định (fixed size) và đã biết, bạn có thể
+  lưu trữ con trỏ trên stack, nhưng khi bạn muốn dữ liệu thực sự, bạn phải đi
+  theo con trỏ.
+- Đẩy dữ liệu vào stack nhanh hơn là cấp phát trên heap vì bộ cấp phát không bao
+  giờ phải tìm kiếm một nơi để lưu dữ liệu mới; vị trí đó luôn ở trên cùng của
+  stack. Tương tự, việc phân bổ không gian trên heap đòi hỏi nhiều công việc
+  hơn, bởi vì bộ cấp phát trước tiên phải tìm một không gian đủ lớn để chứa dữ
+  liệu sau đó thực hiện ghi sổ (bookkeeping) để chuẩn bị cho đợt cấp phát tiếp
+  theo.
+- Truy cập dữ liệu trong heap chậm hơn so với truy cập dữ liệu trên stack vì bạn
+  phải đi theo một con trỏ để đến đó. Các bộ xử lý hiện đại nhanh hơn nếu chúng
+  ít nhảy qua lại bộ nhớ hơn.
+- Khi code của bạn gọi một hàm, các giá trị đã được truyền vào hàm (có thể bao
+  gồm cả con trỏ đến dữ liệu trên heap) và các biến cục bộ của hàm được đẩy lên
+  stack. Khi hàm kết thúc, những giá trị đó bị lấy ra khỏi stack.
+
+* =Ownership & Borrowing=
+** Introduction Ownership
+- Thông thường mỗi ngôn ngữ có phương pháp quản lý bộ nhớ riêng chúng và Rust sử
+  dụng cái gọi là Ownership.
+- Ownership là một chức năng độc đáo của Rust, nó giúp Rust thực thi code một
+  cách hiệu quả và giúp đảm bảo rằng code được biên dịch thực thi chính xác
+  trong các trường hợp khác nhau.
+- Vậy Ownership là gì?
+- Ownership là một tập hợp các quy tắc chi phối cách một chương trình Rust quản
+  lý bộ nhớ. Tất cả các chương trình phải quản lý cách chúng sử dụng bộ nhớ của
+  máy tính khi chạy.
+
+- Quy Tắc Ownership:
+  + Mỗi giá trị trong Rust có một biến gọi là owner của nó.
+  + Chỉ có thể có một owner tại một thời điểm.
+  + Khi owner ra khỏi phạm vi (scope) của nó, giá trị sẽ bị xoá.
+
+#+begin_src rust
+enum Contries {
+    Japan,
+    Germany
+}
+
+fn car(brand: Contries) {
+    match brand {
+        Contries::Japan => println!("Japan Car"),
+        Contries::Germany => println!("Super Car"),
+    }
+}
+
+fn main() {
+    let my_car = Contries::Germany;
+    car(my_car);
+    // car(my_car);
+}
+
+#+end_src
+
+** Recap
+- Memory phải được quản lý một cách tốt nhất để tránh các trường hợp bị rò rỉ
+  bộ nhớ.
+- Rust sử dụng "ownership" để thực hiện việc quản lý bộ nhớ.
+  - "Owner" của dữ liệu phải dọn dẹp bộ nhớ.
+  - Điều này sẽ sảy ra ở cuối scope.
+- Hành vi mặc định khi sử dụng data là  "move" memory sang một owner mới.
+- Sử dụng dấu =&= để cho phép mượn bộ nhớ.
+
+** Examples:
+  #+begin_src rust
+struct Book {
+    name: String,
+    author: String,
+    created: i32,
+}
+
+fn display_name(book: &Book) {
+    println!("{}", book.name);
+}
+
+fn display_author(book: &Book) {
+    println!("{}", book.author);
+}
+
+fn display_year_created(book: &Book) {
+    println!("{}", book.created);
+}
+
+fn main() {
+    let my_book = Book {
+        name: "Rust book".to_string(),
+        author: "Dang Quang Vu".to_string(),
+        created: 2020,
+    };
+    display_name(&my_book);
+    display_author(&my_book);
+    display_year_created(&my_book);
+}
+
+  #+end_src
+
+#+begin_src
+: Rust book
+: Dang Quang Vu
+: 2020
+#+end_src
+
+* Implementation - impl
+#+begin_src rust
+struct Book {
+    name: String,
+    author: String,
+    created: i32,
+}
+
+impl Book {
+    fn new_book() -> Self {
+        Self {
+            name: "Rust book".to_string(),
+            author: "Dang Quang Vu".to_string(),
+            created: 2020,
+        }
+    }
+    fn display_name(&self) {
+        println!("{:?}", self.name);
+    }
+
+    fn display_author(&self) {
+        println!("{:?}", self.author);
+    }
+
+    fn display_year_created(&self) {
+        println!("{:?}", self.created);
+    }
+}
+
+fn main() {
+    let my_book = Book {
+        name: "Rust book".to_string(),
+        author: "Dang Quang Vu".to_string(),
+        created: 2020,
+    };
+    my_book.display_name();
+    my_book.display_author();
+    my_book.display_year_created();
+
+    let my_book2 = Book::new_book();
+    my_book2.display_name();
+}
+#+end_src
+
+#+begin_src
+: "Rust book"
+: "Dang Quang Vu"
+: 2020
+: "Rust book"
+#+end_src
+
+* Data Collections
+** Vector
+- Vector là cấu trúc dữ liệu cho phép bạn lưu trữ nhiều dữ liệu tương tự như
+  tuples nhưng các dữ liệu này phải có cùng kiểu dữ liệu, và bạn có thêm bớt
+  thêm, xoá dữ liệu trong vector 1 cách dễ dàng.
+#+begin_src rust
+fn main() {
+    let mut my_numbers = vec![1,2,3,4];
+    my_numbers.push(5);
+    println!("{:?}", my_numbers);
+
+    let mut my_vec = Vec::new();
+    my_vec.push(1);
+    println!("{:?}", my_vec);
+}
+#+end_src
+
+#+RESULTS:
+: [1, 2, 3, 4, 5]
+: [1]
+
+- Recap:
+  + Vectors cho phép bạn lưu trữ nhiều phần dữ liệu có cùng 1 kiểu dữ liệu.
+  + Dữ liệu có thể dễ dàng được thêm, xoá.
+  + vec! macro có thể được sử dụng để khởi tạo 1 vectors
+  + Sử dụng for..in để tạo vòng lặp qua các items trong vectors.
+
+- Examples:
+  #+begin_src rust
+fn main() {
+    let my_vec = vec![10,20,30,40,50];
+    for num in &my_vec {
+        match num {
+            40 => println!("40 ne"),
+            _ => println!("ok"),
+        }
+    }
+}
+  #+end_src
+
+  #+begin_src
+  : ok
+  : ok
+  : ok
+  : 40 ne
+  : ok
+  #+end_src
+
+** String
+- Có nhiều loại string trong Rust, nhưng có 2 loại được sử dụng phổ biến nhất
+  là:
+  + String - owned
+  + &str - borrowed String slice
+- Phải sử dụng Owned String để lưu trữ trong một =Struct=
+- Có thể sử dụng &str khi truyền vào một function.
+
+- Examples
+  #+begin_src rust
+fn print_it(data: &str){
+    println!("{:?}", data);
+}
+
+fn main() {
+    print_it("String slice");
+    let a_string = "owned string".to_owned();
+    let another_string = String::from("another string");
+    print_it(&a_string);
+    print_it(&another_string);
+}
+  #+end_src
+
+  #+begin_src
+: "String slice"
+: "owned string"
+: "another string"
+  #+end_src
+
+- Examples 2:
+  #+begin_src rust
+struct Student {
+    name: &str
+}
+
+fn main() {
+    let student_name = "Dang Quang Vu";
+    let student = Student {
+        name: student_name
+    }
+}
+  #+end_src
+
+  #+begin_src
+  : error: Could not compile `cargoQbFEkw`.
+  #+end_src
+
+- Fix:
+    #+begin_src rust
+#[derive(Debug)]
+struct Student {
+    name: String
+}
+
+fn main() {
+    let student_name = "Dang Quang Vu".to_owned();
+    let student = Student {
+        name: student_name
+    };
+    println!("{:?}", student);
+
+}
+    #+end_src
+
+    #+begin_src
+    : Student { name: "Dang Quang Vu" }
+    #+end_src
