@@ -1,0 +1,1148 @@
+#+title: Rust Course - Day 2
+#+author: Dang Quang Vu
+#+description: Rust languages courses
+
+* Expanding Knowledge
+** Derive
+- Cho phép bạn tự động triển khai =implementation= được viết sẵn cho một vài
+  trường hợp. ( Được sử dụng cho Struct và Enum ).
+
+#+begin_src rust
+#[derive(Debug, Clone, Copy)]
+enum Class {
+    CNTT,
+    KHMT
+}
+
+#[derive(Debug, Clone, Copy)]
+struct Student<'a> {
+    id: i32,
+    name: &'a str,
+    class: Class,
+}
+
+fn print_student(stu: Student){
+    println!("{:?}", stu);
+}
+
+fn main() {
+    let student = Student {
+        id: 21,
+        name: "Dang Quang Vu",
+        class: Class::CNTT,
+    };
+    print_student(student);
+    println!("{:?}", student);
+
+}
+#+end_src
+
+** enum
+- Enum là loại dữ liệu đại diện cho một =mục= dữ liệu tại một thời điểm và mỗi mục
+  đó được gọi là một biến thể.
+- Tuy nhiên enum không chỉ giới hạn ở cá biến thể đơn giản, mà mỗi variant trong
+  enum có thể tuỳ chọn được dữ liệu bổ sung.
+
+#+begin_src rust
+enum PromoDiscount {
+    NewUser,
+    Holiday(String),
+}
+
+enum Discount {
+    Percent(f64),
+    Flat(i32),
+    Promo(PromoDiscount),
+    Custom(String)
+}
+#+end_src
+
+** Match Advance
+#+begin_src rust
+enum Discount {
+    Percent(i32),
+    Flat(i32),
+}
+
+struct Ticket {
+    event: String,
+    price: i32,
+}
+
+fn main() {
+    let flat = Discount::Flat(4);
+    match flat {
+        Discount::Flat(3) => println!("flat 3"),
+        Discount::Flat(price) => println!("price: {}", price),
+        _ => println!("anything else"),
+    }
+
+    let concept = Ticket {
+        event: "concept".to_owned(),
+        price: 32,
+    };
+    match concept {
+        Ticket {event,price: 32} => println!("price as event: {}", event),
+        Ticket {price,..} => println!("32$"),
+    }
+}
+
+#+end_src
+
+*** Exercise
+#+begin_src rust
+#[derive(Debug)]
+enum Gift {
+    Pen,
+    Book,
+    Clother,
+}
+
+enum Student {
+    Good(f64, Gift),
+    Normal(f64, Gift),
+    Weak(f64),
+}
+
+fn main() {
+    let rank = vec![
+        Student::Good(8.0, Gift::Pen),
+        Student::Normal(6.0, Gift::Book),
+        Student::Weak(5.0),
+    ];
+    for student in rank {
+        match student {
+            Student::Good(point, classs) => {
+                if point > 8.0 && point <= 10.0 {
+                    println!("good student {} point on {:?} class", point, classs)
+                }
+            }
+            Student::Normal(point, classs) => {
+                if point > 5.0 && point <= 8.0 {
+                    println!("normal student {} point on {:?} class", point, classs)
+                }
+            }
+            Student::Weak(point) => {
+                println!("weak student {} point", point)
+            }
+        }
+    }
+}
+#+end_src
+
+** Option type
+- Là kiểu dữ liệu có 1 hoặc 2 dữ liệu:
+  + Nếu có dữ liệu thì nó thuộc dạng dữ liệu đặc biệt.
+  + Hoặc không có dữ liệu gì cả.
+- Thường được sử dụng trong các trường hợp mà dữ liệu có thể có hoặc không có
+  sẵn.
+  + Sử dụng để tìm kiếm dữ liệu nào đó
+  + Tìm kiếm chỉ mục trong 1 danh sách
+  + Hoặc sử dụng cho các biểu mẫu.
+
+#+begin_src rust
+enum Option<T> {
+    Some(T),
+    None,
+}
+#+end_src
+
+- Vi du:
+  #+begin_src rust
+struct Student {
+    name: String,
+    age: Option<i32>,
+}
+
+fn main() {
+    let vu = Student {name: "Quang Vu".to_owned(), age: Some(27) };
+    let dang = Student {name: "Dang Vu".to_owned(), age: None};
+
+    match dang.age {
+        Some(age) => println!("student {:} year old", age),
+        None => println!("student age not yet provided")
+    }
+
+}
+
+  #+end_src
+
+  #+begin_src
+  : student age not yet provided
+  #+end_src
+
+- Examples
+#+begin_src rust
+struct Student {
+    name: String,
+    GPA: f64,
+}
+
+fn find_GPA(name: String) -> Option<f64> {
+    let class = vec![
+        Student {name: "Vu".to_owned(), GPA: 4.5},
+        Student {name: "Dang".to_owned(), GPA: 3.5},
+        Student {name: "Quang".to_owned(), GPA: 2.0},
+    ];
+    for stu in class {
+        if stu.name == name {
+            return Some(stu.GPA);
+        }
+    }
+    None
+}
+
+fn main() {
+    println!("{:?}", find_GPA("Vu".to_string()));
+}
+
+#+end_src
+
+#+begin_src
+: Some(4.5)
+#+end_src
+
+** Documentation
+#+begin_src rust
+/// A struct student
+struct Student {
+    /// name of student
+    name: String,
+    /// GPA of Us
+    GPA: f64,
+}
+
+/// find GPA function
+fn find_GPA(name: String) -> Option<f64> {
+    let class = vec![
+        Student {name: "Vu".to_owned(), GPA: 4.5},
+        Student {name: "Dang".to_owned(), GPA: 3.5},
+        Student {name: "Quang".to_owned(), GPA: 2.0},
+    ];
+    for stu in class {
+        if stu.name == name {
+            return Some(stu.GPA);
+        }
+    }
+    None
+}
+
+fn main() {
+    println!("{:?}", find_GPA("Vu".to_string()));
+}
+#+end_src
+
+#+begin_src
+cargo doc --open
+#+end_src
+
+** Result
+- Tương tự nhiên kiểu dữ liệu Option nhưng khác 2 giá trị của Result là thành
+  công & thất bại.
+  + "Successfull" data
+  + "Error" data
+- Thường được sử dụng trong các trường hợp có thể thất bại như sao chép, chỉnh
+  sửa khởi tạo file. Call Api, data, Connecting websites.
+#+begin_src rust
+enum Result<T, E>{
+    Ok(T),
+    Err(E),
+}
+#+end_src
+
+*** Examples
+#+begin_src rust
+#[derive(Debug)]
+enum Menu {
+    MainMenu,
+    Shutdown,
+    Restart,
+}
+
+fn get_choice(input: &str) -> Result<Menu, String> {
+    match input {
+        "mainmenu" => Ok(Menu::MainMenu),
+        "shutdown" => Ok(Menu::Shutdown),
+        "restart" => Ok(Menu::Restart),
+        _ => Err("menu choice not found".to_owned()),
+    }
+}
+
+fn main() {
+    let a = get_choice("mainmenu");
+    match a {
+        Ok(a) => println!("{:?}", a),
+        Err(e) => println!("err {}", e),
+    }
+}
+#+end_src
+
+#+begin_src
+: MainMenu
+#+end_src
+
+* Data Structures
+** HashMap
+- Đây là một cách hữu ích để lưu trữ thông tin và truy xuất thông tin khi bạn
+  biết chính xác những gì bạn đang tìm kiếm.
+- HashMap là dữ liệu được lưu trữ theo cặp key-value.
+- Hashmap sẽ giúp bạn truy xuất dữ liệu rất nhanh.
+#+begin_src rust
+use std::collections::HashMap;
+
+fn main() {
+    let mut class = HashMap::new();
+    class.insert("Vu", 27);
+    class.insert("Dang", 28);
+    class.insert("Quang", 21);
+    class.remove("Dang");
+
+    match class.get("Vu") {
+        Some(age) => println!("age = {}", age),
+        None => println!("not found"),
+    }
+
+    for (student, age) in class.iter() {
+        println!("student = {:?}, age = {:?}", student,age);
+    }
+
+    for student in class.keys() {
+        println!("student = {:?}", student);
+    }
+
+    for age in class.values() {
+    println!("age = {:?}", age);
+    }
+
+}
+#+end_src
+
+#+begin_src
+: age = 27
+: student = "Vu", age = 27
+: student = "Quang", age = 21
+: student = "Vu"
+: student = "Quang"
+: age = 27
+: age = 21
+#+end_src
+
+** Closures
+#+begin_src rust
+fn add_fn(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+fn main() {
+    let sum = add_fn(2,3);
+    let add1 = | a: i32, b:i32 | -> i32 {
+        a + b
+    };
+    let sum1 = add1(2,3);
+
+    let add2 = |a , b| a + b;
+    let sum2 = add2(2,3);
+}
+#+end_src
+
+** Map Combinator
+#+begin_src rust
+fn maybe_some() -> Option<i32> {
+    Some(4)
+}
+
+fn maybe_word() -> Option<String> {
+    Some("Hello".to_owned())
+}
+
+fn main() {
+    let plus_one = match maybe_some() {
+        Some(num) => Some(num + 1),
+        None => None,
+    };
+
+    let plus_one_upgrade = maybe_some().map(|num| num + 1);
+    println!("{:?}", plus_one_upgrade);
+}
+#+end_src
+
+** Option Combinator
+#+begin_src rust
+fn main() {
+    let a: Option<i32> = Some(1);
+
+    let a_is_some = a.is_some();
+    dbg!(a_is_some);
+
+    let a_is_none = a.is_none();
+    dbg!(a_is_none);
+
+    let a_map = a.map(|num| num + 1);
+    dbg!(a_map);
+
+    let a_filtered = a.filter(|num| num == &1);
+    dbg!(a_filtered);
+
+    let a_or_else = a.or_else(|| Some(5));
+    dbg!(a_or_else);
+
+    let a_unwarp_or_else = a.unwrap_or_else(|| 0);
+    dbg!(a_unwarp_or_else);
+
+    let a_unwrap = a.unwrap();
+    println!("unwrap = {:?}", a_unwrap);
+}
+#+end_src
+
+#+begin_src
+[src/main.rs:6] a_is_some = true
+[src/main.rs:9] a_is_none = false
+[src/main.rs:12] a_map = Some(
+    2,
+)
+[src/main.rs:15] a_filtered = Some(
+    1,
+)
+[src/main.rs:18] a_or_else = Some(
+    1,
+)
+[src/main.rs:21] a_unwarp_or_else = 1
+unwrap = 1
+#+end_src
+
+** Iterator
+#+begin_src rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    // let plus_one = vec![];
+    // for num in number {
+    //     plus_one.push(num + 1)
+    // }
+
+    let plus_one_up: Vec<i32> = numbers
+        .iter()
+        .filter(|num| num >= &&3)
+        .map(|num| num + 1)
+        .collect();
+    println!("{:?}", plus_one_up);
+}
+#+end_src
+
+#+begin_src
+: [4, 5, 6]
+#+end_src
+
+** Range
+#+begin_src rust
+fn main() {
+    let range1 = 1..=3;
+    for i in range1 {
+        println!("i = {}", i);
+    }
+
+    let range2 = 1..3; // 1 -> n-1
+    for i in range2 {
+        println!("i2 = {}", i);
+    }
+
+    for i in 'a'..'f' {
+        println!("character = '{}'", i);
+    }
+}
+#+end_src
+
+#+begin_src
+i = 1
+i = 2
+i = 3
+i2 = 1
+i2 = 2
+character = 'a'
+character = 'b'
+character = 'c'
+character = 'd'
+character = 'e'
+#+end_src
+
+** If let
+#+begin_src rust
+fn main() {
+    let maybe_user = Some("Vu");
+    match maybe_user {
+        Some(name) => println!("{:?}", name),
+        None => println!("no user"),
+    }
+
+    if let Some(user) = maybe_user {
+        println!("{:?}", user);
+    } else {
+        println!("no user");
+    }
+}
+#+end_src
+
+* Managing Code
+** Modules
+#+begin_src rust
+mod testing1 {
+    pub fn say_hello() {
+        println!("Hello World");
+    }
+    pub fn say_goodbye() {
+        println!("Goodbye");
+    }
+}
+
+mod math {
+    fn add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+    fn div(a: i32, b: i32) -> i32 {
+        a - b
+    }
+}
+
+fn main() {
+    use testing1::*;
+    testing1::say_hello();
+    testing1::say_goodbye();
+}
+#+end_src
+
+#+begin_src
+: Hello World
+: Goodbye
+#+end_src
+
+** Testing
+
+#+begin_src rust
+fn all_caps(word: &str) -> String {
+    word.to_uppercase()
+}
+
+fn main() {}
+
+#[cfg(test)]
+mod test {
+    use crate::all_caps;
+
+    #[test]
+    fn check_all_caps() {
+        let result = all_caps("hello");
+        assert_eq!(result, "HELLO".to_owned(), "String to be uppercase");
+    }
+}
+#+end_src
+
+** Input
+#+begin_src rust
+    use std::io;
+
+fn get_input() -> io::Result<String> {
+    let mut buffer = String::new();
+    io::stdin().read_line(&mut buffer)?;
+    Ok(buffer.trim().to_owned())
+}
+
+fn main() {
+    let mut all_input = vec![];
+    let mut time_input = 0;
+    while time_input < 2 {
+        match get_input() {
+            Ok(words) => {
+                all_input.push(words);
+                time_input += 1;
+            }
+            Err(e) => println!("{:?}", e),
+        }
+    }
+
+    for input in all_input {
+        println!(
+            "Original {:?}, capitalized {:?}",
+            input,
+            input.to_uppercase()
+        );
+    }
+}
+#+end_src
+
+** Active Input
+#+begin_src rust
+use std::io;
+
+enum PowerState {
+    Off,
+    Sleep,
+    Reboot,
+    Shutdown,
+    Hibernate,
+}
+
+impl PowerState {
+    fn new(state: &str) -> Option<PowerState> {
+        let state = state.trim().to_lowercase();
+        match state.as_str() {
+            "off" => Some(PowerState::Off),
+            "sleep" => Some(PowerState::Sleep),
+            "reboot" => Some(PowerState::Reboot),
+            "shutdown" => Some(PowerState::Shutdown),
+            "hibernate" => Some(PowerState::Hibernate),
+            _ => None,
+        }
+    }
+}
+
+fn action_power(state: PowerState) {
+    use PowerState::*;
+    match state {
+        Off => println!("off"),
+        Sleep => println!("sleep"),
+        Reboot => println!("reboot"),
+        Shutdown => println!("shutdown"),
+        Hibernate => println!("hibernate"),
+    }
+}
+
+fn main() {
+    let mut buffer = String::new();
+    let input = io::stdin().read_line(&mut buffer);
+    if input.is_ok() {
+        match PowerState::new(&buffer) {
+            Some(state) => action_power(state),
+            None => println!("invalid"),
+        }
+    } else {
+        println!("error reading file");
+    }
+}
+#+end_src
+
+* Activity
+- Command line application to track students in a class
+  + Add, edit, view, remove
+- Focus using:
+  + enums, Options, Result, macth, interators, etc...
+  + Ownership, Borrowing issues
+  + Mutability
+#+begin_src
+======manage student======
+1. Add student
+2. View students
+3. Remove student
+4. Update student
+
+Enter selection:
+#+end_src
+
+#+begin_src rust
+use std::{collections::HashMap, io};
+
+#[derive(Clone, Debug)]
+pub struct Student {
+    name: String,
+    age: i32,
+}
+
+#[derive(Debug, Clone)]
+pub struct Class {
+    inner: HashMap<String, Student>,
+}
+
+impl Class {
+    fn new() -> Self {
+        Self {
+            inner: HashMap::new(),
+        }
+    }
+
+    fn add(&mut self, student: Student) {
+        self.inner.insert(student.name.to_owned(), student);
+    }
+
+    fn get_all(&self) -> Vec<&Student> {
+        self.inner.values().collect()
+    }
+    fn delete(&mut self, name: &str) -> bool {
+        self.inner.remove(name).is_some()
+    }
+    fn update(&mut self, name: &str, age: i32) -> bool {
+        match self.inner.get_mut(name) {
+            Some(name) => {
+                name.age = age;
+                true
+            }
+            None => false,
+        }
+    }
+}
+
+mod manager {
+    use crate::{get_input, get_input_int, Class, Student};
+
+    pub fn add_student(class: &mut Class) {
+        println!("please enter name student");
+        let name = match get_input() {
+            Some(name) => name,
+            None => return,
+        };
+        let age = match get_input_int() {
+            Some(age) => age,
+            None => return,
+        };
+        let student = Student { name, age };
+        class.add(student);
+    }
+    pub fn view_class(class: &Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+    }
+
+    pub fn del_student(class: &mut Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+        println!("please enter name you want remove");
+        let name = match get_input() {
+            Some(input) => input,
+            None => return,
+        };
+        if class.delete(&name) {
+            println!("remove student");
+        } else {
+            println!("not found");
+        }
+    }
+
+    pub fn edit_student(class: &mut Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+        println!("please enter name you want update");
+        let name = match get_input() {
+            Some(input) => input,
+            None => return,
+        };
+
+        println!("please enter age to edit");
+        let age = match get_input_int() {
+            Some(input) => input,
+            None => return,
+        };
+        if class.update(&name, age) {
+            println!("student has edit");
+        } else {
+            println!("not found");
+        }
+    }
+}
+
+fn get_input_int() -> Option<i32> {
+    println!("enter age of student");
+    let input = match get_input() {
+        Some(input) => input,
+        None => return None,
+    };
+
+    let parsed_input: Result<i32, _> = input.parse();
+    match parsed_input {
+        Ok(input) => Some(input),
+        Err(_) => None,
+    }
+}
+
+fn get_input() -> Option<String> {
+    let mut buffer = String::new();
+    while io::stdin().read_line(&mut buffer).is_err() {
+        println!("Please enter your data again");
+    }
+    let input = buffer.trim().to_owned();
+    if &input == "" {
+        None
+    } else {
+        Some(input)
+    }
+}
+
+enum MainMenu {
+    AddStudent,
+    ViewClass,
+    RemoveStudent,
+    UpdateStudent,
+}
+
+impl MainMenu {
+    fn choice(input: &str) -> Option<MainMenu> {
+        match input {
+            "1" => Some(MainMenu::AddStudent),
+            "2" => Some(MainMenu::ViewClass),
+            "3" => Some(MainMenu::RemoveStudent),
+            "4" => Some(MainMenu::UpdateStudent),
+            _ => None,
+        }
+    }
+    fn show_choice() {
+        println!("");
+        println!("== Class Manager ==");
+        println!("1. Add Student");
+        println!("2. View Class");
+        println!("3. Remove Student");
+        println!("4. Update Student");
+        println!("");
+        println!("Enter selection: ");
+    }
+}
+
+fn main() {
+    // let mut student = Class::new();
+    let mut student = Class::new();
+    loop {
+        MainMenu::show_choice();
+        let input = get_input().expect("No data");
+        match MainMenu::choice(input.as_str()) {
+            Some(MainMenu::AddStudent) => manager::add_student(&mut student),
+            Some(MainMenu::ViewClass) => manager::view_class(&student),
+            Some(MainMenu::RemoveStudent) => manager::del_student(&mut student),
+            Some(MainMenu::UpdateStudent) => manager::edit_student(&mut student),
+            None => return,
+        }
+    }
+}
+#+end_src
+
+* =Advanced Knowledge=
+* Trait
+** Demo
+- Trait chỉ đơn giản là cách để xác định rằng một số chức năng đã tồn tại.
+- Chúng được sử dụng để tiêu chuẩn hoá các function trên nhiều loại khác nhau
+  + =Standardization Permits Function= giúp function có thể hoạt động trên nhiều
+    kiểu dữ liệu khác nhau.
+- Với function bình thường bạn phải viết nhiều function cho nhiều chức năng khác
+  nhau, nhưng nếu tất cả kiểu đó thể hiện 1 chức năng tương tự thì có thể sử
+  dụng =Trait=.
+#+begin_src rust
+trait Say {
+    fn make_say(&self);
+}
+
+fn hello(say: impl Say) {
+    say.make_say();
+}
+
+struct Person;
+impl Say for Person {
+    fn make_say(&self) {
+        println!("hello");
+    }
+}
+
+struct Dog;
+impl Say for Dog {
+    fn make_say(&self) {
+        println!("wofl wofl");
+    }
+}
+
+fn main() {
+    hello(Person {});
+    hello(Dog {});
+}
+#+end_src
+
+** Activity
+#+begin_src rust
+trait Perimeter {
+    fn calculate_perimeter(&self) -> i32;
+}
+
+struct Square {
+    side: i32,
+}
+
+impl Square {
+    fn new(side: i32) -> Self {
+        Self { side }
+    }
+}
+
+impl Default for Square {
+    fn default() -> Self {
+        Self { side: 40 }
+    }
+}
+
+impl Perimeter for Square {
+    fn calculate_perimeter(&self) -> i32 {
+        self.side * 4
+    }
+}
+
+struct Triangle {
+    side_a: i32,
+    side_b: i32,
+    side_c: i32,
+}
+impl Perimeter for Triangle {
+    fn calculate_perimeter(&self) -> i32 {
+        self.side_a + self.side_b + self.side_c
+    }
+}
+
+fn print_perimeter(shape: impl Perimeter) {
+    let perimeter = shape.calculate_perimeter();
+    println!("perimeter : {:?}", perimeter);
+}
+
+fn main() {
+    let square = Square::default();
+    let triangle = Triangle {
+        side_a: 3,
+        side_b: 4,
+        side_c: 5,
+    };
+    print_perimeter(square);
+    print_perimeter(triangle);
+}
+#+end_src
+
+* Generic Function
+- Là function cho phép nhiều kiểu dữ liệu khác nhau được sử dụng làm tham số hàm.
+- Điều này giúp generic function không sử dụng 1 kiểu dữ liệu cụ thể làm tham số
+  như bình thường, mà sẽ sử dụng một trait để làm kiểu dữ liệu.
+  + Sau đó function sẽ được sử dụng với bất kỳ loại dữ liệu nào có triển khai trait.
+- Điều này có thể thực hiện được bởi vì các trait thể hiện hành vi, và generic
+  function có thể sử dụng behavior được xác định trên trait thay vì kiểu dữ liệu
+  rõ ràng.
+
+#+begin_src rust
+trait Move {
+    fn move_to(&self, x: i32, y: i32);
+}
+
+struct Snake;
+impl Move for Snake {
+    fn move_to(&self, x: i32, y: i32) {
+        println!("move to ({}, {})", x, y);
+    }
+}
+
+struct Dog;
+impl Move for Dog {
+    fn move_to(&self, x: i32, y: i32) {
+        println!("dog run to ({}, {})", x, y);
+    }
+}
+
+// fn make_move(click: impl Move, x: i32, y: i32) {
+//     click.move_to(x, y)
+// }
+
+// fn make_move<T: Move>(click: T, x: i32, y: i32) {
+//     click.move_to(x, y);
+// }
+
+fn make_move<T>(click: T, x: i32, y: i32)
+where
+    T: Move,
+{
+    click.move_to(x, y);
+}
+
+fn main() {
+    let rust = Snake {};
+    make_move(rust, 1, 2);
+}
+#+end_src
+
+* Generic Structures
+** Generic Structures
+- Cho phép bạn lưu trữ bất kỳ loại dữ liệu nào trong một struct.
+- Giới hạn trong cấu trúc của trait là sự hạn chế các loại dữ liệu mà struct có
+  thể sử dụng.
+  + Các giới hạn trait này còn được gọi là "generic constraints": ràng buộc
+    chung.
+- Generic structure rất hữu ích khi tạo các data collection.
+#+begin_src rust
+struct Name<T: Trait1, U: Trait2> {
+    field1: T,
+    field2: U,
+}
+#+end_src
+
+** Definition - DN
+#+begin_src rust
+trait Seat {
+    fn show(&self);
+}
+
+struct Ticket<T: Seat> {
+    location: T,
+}
+
+enum ConceptSeat {
+    FrontRow,
+    MidSection(i32),
+    Back(u32),
+}
+impl Seat for ConceptSeat {
+    fn show(&self) {
+        println!("Concept seat");
+    }
+}
+
+enum AirlineSeat {
+    BussinessClass,
+    Economy,
+    FirstClass,
+}
+impl Seat for AirlineSeat {
+    fn show(&self) {
+        println!("Airline seat");
+    }
+}
+
+// fn ticket_info(ticket: Ticket<AirlineSeat>) {
+//     ticket.location.show()
+// }
+
+fn ticket_info<T: Seat>(ticket: Ticket<T>) {
+    ticket.location.show()
+}
+
+fn main() {
+    let airline = Ticket {
+        location: AirlineSeat::BussinessClass,
+    };
+    let concept = Ticket {
+        location: ConceptSeat::FrontRow,
+    };
+    ticket_info(airline);
+    ticket_info(concept);
+}
+#+end_src
+
+** Recap
+- Generic Structures cho phép lưu các struct có kiểu dữ liệu tuỳ ý.
+- Các kiểu dữ liệu này có thể thuộc bất kỳ kiểu dữ liệu nào, hoặc có thể bị ràng
+  buộc bởi các trait được thiết lập trên chính struct đó.
+- có 2 kiểu khởi tạo generic structures.
+#+begin_src rust
+struct Name<T: Trait1,U: Trait2> {
+    field1: T,
+    field2: U
+}
+
+struct Name<T, U>
+where
+    T: Trait1 + Trait2,
+    U: Trait2,
+    {
+        field1: T,
+        field2: U
+    }
+#+end_src
+
+** impl Blocks
+- Khi triển khai impl trên generic structures chúng ta có 2 lựa chọn:
+  + Triển khai chung - =Generic implementation=
+    - Generic implementation cho phép thêm chức năng cho bất kỳ loại dữ liệu nào
+      có thể được sử dụng.
+  + Triển khai riêng - =Concrete implementation=
+    - Concrete implementation cho phép chức năng được thêm vào loại dữ liệu cụ
+      thể được chỉ ra như một phần của việc concrete implementation.
+    - Concrete implementation vẫn có thể bị hạn chế bởi các types có thể được sử
+      dụng với Generic structures.
+#+begin_src rust
+trait Game {
+    fn name(&self) -> String;
+}
+
+#[derive(Debug)]
+enum BoardGame {
+    Chess,
+    Monopoly,
+}
+impl Game for BoardGame {
+    fn name(&self) -> String {
+        "Board Game".to_owned()
+    }
+}
+
+#[derive(Debug)]
+enum VideoGame {
+    PlayStation,
+    Xbox,
+}
+
+impl Game for VideoGame {
+    fn name(&self) -> String {
+        "Video Game".to_owned()
+    }
+}
+
+#[derive(Debug)]
+struct PlayRoom<T: Game> {
+    game: T,
+}
+
+impl<T: Game> PlayRoom<T> {
+    pub fn cleanup(&self) {
+        println!("clean up {:?}", self.game.name());
+    }
+}
+
+fn main() {
+    let video_room = PlayRoom {
+        game: VideoGame::Xbox,
+    };
+
+    let board_room = PlayRoom {
+        game: BoardGame::Chess,
+    };
+    video_room.cleanup();
+    board_room.cleanup();
+}
+#+end_src
+
+** Demo
+#+begin_src rust
+trait Body {}
+trait Color {}
+
+#[derive(Debug)]
+struct Vehicle<B: Body, C: Color> {
+    body: B,
+    color: C,
+}
+
+impl<B: Body, C: Color> Vehicle<B, C> {
+    pub fn new(body: B, color: C) -> Self {
+        Self { body, color }
+    }
+}
+
+#[derive(Debug)]
+struct Car;
+impl Body for Car {}
+
+#[derive(Debug)]
+struct Truck;
+impl Body for Truck {}
+
+#[derive(Debug)]
+struct Red;
+impl Color for Red {}
+
+#[derive(Debug)]
+struct Yellow;
+impl Color for Yellow {}
+
+fn main() {
+    let red_truck = Vehicle::new(Truck, Red);
+    let yellow_car = Vehicle::new(Car, Yellow);
+    println!("{:?}", red_truck);
+    println!("{:?}", yellow_car);
+}
+#+end_src

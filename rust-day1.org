@@ -37,6 +37,7 @@
     hướng dẫn để cài Rust. Bạn cũng sẽ cần C++ build tools cho =Visual Studio 2013=
     hoặc mới hơn. Cách dễ nhất là cài Build Tools for Visual Studio 2019. Hãy đảm
     bảo “C++ build tools” được chọn.
+
 - Linux & MacOs
   + Install with =Command line=
     #+begin_src
@@ -53,7 +54,9 @@ xcode-select --install
 ** Run a program with Rust
 - Khởi tạo dự án:
   #+begin_src
-cargo init nameproject
+1. cargo init
+2. cargo new --bin nameproject
+3. cargo new --lib nameproject
   #+end_src
 
 - Cấu trúc Project rust:
@@ -81,6 +84,7 @@ $ cargo new ...
 $ cargo build
 $ cargo run
 $ cargo check
+$ cargo test
 #+end_src
 
 * Common Programming Concepts
@@ -151,7 +155,7 @@ fn main() {
 ** Control Flow using "if"
 #+begin_src rust
 fn main() {
-   let a = 99;
+    let a = 99;
     if a > 99 {
         println!("lon hon 99");
     } else if a < 99 {
@@ -188,6 +192,7 @@ fn main() {
   : 3
   : 4
   #+end_src
+
 - Using while
   #+begin_src rust
 fn main() {
@@ -413,7 +418,6 @@ fn main() {
 * Stack & Heap
 - Cả stack và heap đều là những phần bộ nhớ có sẵn cho code của bạn để sử dụng
   trong runtime, nhưng chúng được cấu trúc theo những cách khác nhau.
-
 - Stack lưu trữ lưu trữ các giá trị theo thứ tự mà nó nhận được và xóa các giá
   trị theo thứ tự ngược lại. Điều này được gọi là last in, first out (Vào sau,
   ra trước).
