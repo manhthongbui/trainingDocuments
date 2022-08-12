@@ -1,4 +1,5 @@
 #+title: Readme
 #+AUTHOR: Dang Quang Vu
 
-* [[./Rust-course.org][Rust Languages Basic to Advance]]
+* [[./rust-day1.org][Rust Languages Basic to Advanced - Day 1]]
+* [[./rust-day2.org][Rust Languages Basic to Advanced - Day 2]]
