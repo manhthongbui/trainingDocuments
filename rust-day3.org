@@ -1,7 +1,8 @@
 #+title: Rust Day3
 #+author: Dang Quang Vu
 
-* Activity
+* [X] Activity
+CLOSED: [2022-08-14 Sun 20:28]
 - Command line application to track students in a class
   + Add, edit, view, remove
 - Focus using:
@@ -194,7 +195,180 @@ fn main() {
 }
 #+end_src
 
-* Shared Functionality
+* [X] Lifetimes
+CLOSED: [2022-08-14 Sun 20:28]
+** Lifetime
+- Lifetime là những gì compiler của rust sử dụng để theo dõi thời gian các tham
+  chiếu có giá trị. Checking Reference là một trong những trách nhiệm chính của
+  chức năng borrow checker's. Lifetime giúp cho borrow checker's đảm bảo giá trị
+  mượn của không bao giờ có các reference ko hợp lệ.
+- Tất cả dữ liệu trong rust đều có thời gian tồn tại nhưng trình biên dịch có thể tự
+  động tính toán thời gian tồn tại trong nhiều trường hợp. Vì vậy bạn thường
+  ko phải lúc nào cũng thấy nó trong code.
+#+begin_src rust
+//syntax
+const HANGSO: &'static i32 = 1124;
+struct Name<'a> {
+    field: &'a DataType,
+}
+
+fn add<'a,'b>(x: &'a i32, y: &'b i32) -> &'a i32 {
+    x + y
+}
+#+end_src
+- Convention use 'a, 'b, 'c
+- 'static is reserved
+  + 'static cho biết dữ liệu tồn tại trong bộ nhớ toàn bộ thời gian của trường
+    trình.
+- &'a sẽ thông báo với trình biên dịch rằng dữ liệu này sẽ vẫn còn tồn tại sau
+  khi structure này đã bị phá huỷ.
+** Why we need Lifetimes
+- Rust's onwership model
+- Borrow checker's sẽ đảm nhiệm việc cấp phát và giải phóng bộ nhớ và cũng đảm
+  bảo rằng không có tham chiếu nào được trỏ tới bộ nhớ đã được giải phóng.
+- Giống như borrow data, chúng được kiểm tra tại thời gian biên dịch, nên nếu
+  không hợp lệ sẽ không chạy được chường trình.
+- Lifetime cực kì quan trọng khi function trả về một tham chiếu, và khi Struct
+  chưa một dữ liệu tham chiếu.
+
+** Lifetimes Struct & impl
+- Demo
+#+begin_src rust
+#[derive(Debug)]
+struct Cards {
+    inner: Vec<IdCard>,
+}
+
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+enum City {
+    HCM,
+    HN,
+    DN,
+}
+
+#[derive(Debug)]
+struct IdCard {
+    name: String,
+    age: u8,
+    city: City,
+}
+
+impl IdCard {
+    pub fn new(name: &str, age: u8, city: City) -> Self {
+        Self {
+            name: name.to_string(),
+            age,
+            city,
+        }
+    }
+}
+
+fn new_ids() -> Cards {
+    Cards {
+        inner: vec![
+            IdCard::new("Dang", 27, City::HCM),
+            IdCard::new("Quang", 28, City::DN),
+            IdCard::new("Vu", 29, City::HN),
+            IdCard::new("Ok", 30, City::HN),
+            IdCard::new("Khong", 31, City::HCM),
+        ],
+    }
+}
+
+fn main() {
+    let ids = new_ids();
+}
+#+end_src
+
+- Active
+#+begin_src rust
+#[derive(Debug)]
+struct Cards {
+    inner: Vec<IdCard>,
+}
+
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+enum City {
+    HCM,
+    HN,
+    DN,
+}
+
+#[derive(Debug)]
+struct IdCard {
+    name: String,
+    age: u8,
+    city: City,
+}
+
+impl IdCard {
+    pub fn new(name: &str, age: u8, city: City) -> Self {
+        Self {
+            name: name.to_string(),
+            age,
+            city,
+        }
+    }
+}
+
+fn new_ids() -> Cards {
+    Cards {
+        inner: vec![
+            IdCard::new("Dang", 27, City::HCM),
+            IdCard::new("Quang", 28, City::DN),
+            IdCard::new("Vu", 29, City::HN),
+            IdCard::new("Ok", 30, City::HN),
+            IdCard::new("Khong", 31, City::HCM),
+        ],
+    }
+}
+
+#[derive(Debug)]
+struct YoungPeople<'a> {
+    inner: Vec<&'a IdCard>,
+}
+
+#[derive(Debug)]
+struct OldPeople<'a> {
+    inner: Vec<&'a IdCard>,
+}
+
+impl<'a> YoungPeople<'a> {
+    fn living_in_hcm(&self) -> Self {
+        Self {
+            inner: self
+                .inner
+                .iter()
+                .filter(|id| id.city == City::HCM)
+                .map(|id| *id)
+                .collect(),
+        }
+    }
+}
+
+fn main() {
+    let ids = new_ids();
+    let young = YoungPeople {
+        inner: ids.inner.iter().filter(|id| id.age <= 28).collect(),
+    };
+    for id in ids.inner.iter() {
+        println!("{:?}", id);
+    }
+
+    println!("\nyoung people\n");
+    for id in young.inner.iter() {
+        println!("{:?}", id);
+    }
+
+    println!("\n living in hcm");
+    for id in young.living_in_hcm().inner.iter() {
+        println!("{:?}", id);
+    }
+}
+#+end_src
+
+* [X] Shared Functionality
+CLOSED: [2022-08-14 Sun 20:57]
 ** Trait
 *** Demo
 - Trait chỉ đơn giản là cách để xác định rằng một số chức năng đã tồn tại.
@@ -529,173 +703,8 @@ fn main() {
 }
 #+end_src
 
-* Lifetimes
-** Lifetime
-- Lifetime là những gì compiler của rust sử dụng để theo dõi thời gian các tham
-  chiếu có giá trị. Checking Reference là một trong những trách nhiệm chính của
-  chức năng borrow checker's. Lifetime giúp cho borrow checker's đảm bảo giá trị
-  mượn của không bao giờ có các reference ko hợp lệ.
-- Tất cả dữ liệu trong rust đều có thời gian tồn tại nhưng trình biên dịch có thể tự
-  động tính toán thời gian tồn tại trong nhiều trường hợp. Vì vậy bạn thường
-  ko phải lúc nào cũng thấy nó trong code.
-#+begin_src rust
-//syntax
-struct Name<'a> {
-    field: &'a DataType,
-}
-#+end_src
-- Convention use 'a, 'b, 'c
-- 'static is reserved
-  + 'static cho biết dữ liệu tồn tại trong bộ nhớ toàn bộ thời gian của trường
-    trình.
-- &'a sẽ thông báo với trình biên dịch rằng dữ liệu này sẽ vẫn còn tồn tại sau
-  khi structure này đã bị phá huỷ.
-** Why we need Lifetimes
-- Rust's onwership model
-- Borrow checker's sẽ đảm nhiệm việc cấp phát và giải phóng bộ nhớ và cũng đảm
-  bảo rằng không có tham chiếu nào được trỏ tới bộ nhớ đã được giải phóng.
-- Giống như borrow data, chúng được kiểm tra tại thời gian biên dịch, nên nếu
-  không hợp lệ sẽ không chạy được chường trình.
-- Lifetime cực kì quan trọng khi function trả về một tham chiếu, và khi Struct
-  chưa một dữ liệu tham chiếu.
-
-** Lifetimes Struct & impl
-- Demo
-#+begin_src rust
-#[derive(Debug)]
-struct Cards {
-    inner: Vec<IdCard>,
-}
-
-#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
-enum City {
-    HCM,
-    HN,
-    DN,
-}
-
-#[derive(Debug)]
-struct IdCard {
-    name: String,
-    age: u8,
-    city: City,
-}
-
-impl IdCard {
-    pub fn new(name: &str, age: u8, city: City) -> Self {
-        Self {
-            name: name.to_string(),
-            age,
-            city,
-        }
-    }
-}
-
-fn new_ids() -> Cards {
-    Cards {
-        inner: vec![
-            IdCard::new("Dang", 27, City::HCM),
-            IdCard::new("Quang", 28, City::DN),
-            IdCard::new("Vu", 29, City::HN),
-            IdCard::new("Ok", 30, City::HN),
-            IdCard::new("Khong", 31, City::HCM),
-        ],
-    }
-}
-
-fn main() {
-    let ids = new_ids();
-}
-#+end_src
-
-- Active
-#+begin_src rust
-#[derive(Debug)]
-struct Cards {
-    inner: Vec<IdCard>,
-}
-
-#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
-enum City {
-    HCM,
-    HN,
-    DN,
-}
-
-#[derive(Debug)]
-struct IdCard {
-    name: String,
-    age: u8,
-    city: City,
-}
-
-impl IdCard {
-    pub fn new(name: &str, age: u8, city: City) -> Self {
-        Self {
-            name: name.to_string(),
-            age,
-            city,
-        }
-    }
-}
-
-fn new_ids() -> Cards {
-    Cards {
-        inner: vec![
-            IdCard::new("Dang", 27, City::HCM),
-            IdCard::new("Quang", 28, City::DN),
-            IdCard::new("Vu", 29, City::HN),
-            IdCard::new("Ok", 30, City::HN),
-            IdCard::new("Khong", 31, City::HCM),
-        ],
-    }
-}
-
-#[derive(Debug)]
-struct YoungPeople<'a> {
-    inner: Vec<&'a IdCard>,
-}
-
-#[derive(Debug)]
-struct OldPeople<'a> {
-    inner: Vec<&'a IdCard>,
-}
-
-impl<'a> YoungPeople<'a> {
-    fn living_in_hcm(&self) -> Self {
-        Self {
-            inner: self
-                .inner
-                .iter()
-                .filter(|id| id.city == City::HCM)
-                .map(|id| *id)
-                .collect(),
-        }
-    }
-}
-
-fn main() {
-    let ids = new_ids();
-    let young = YoungPeople {
-        inner: ids.inner.iter().filter(|id| id.age <= 28).collect(),
-    };
-    for id in ids.inner.iter() {
-        println!("{:?}", id);
-    }
-
-    println!("\nyoung people\n");
-    for id in young.inner.iter() {
-        println!("{:?}", id);
-    }
-
-    println!("\n living in hcm");
-    for id in young.living_in_hcm().inner.iter() {
-        println!("{:?}", id);
-    }
-}
-#+end_src
-
-* Improving Program Reliability
+* [X] Improving Program Reliability
+CLOSED: [2022-08-14 Sun 21:10]
 ** Manual error creation
 #+begin_src rust
 #[derive(Debug)]
@@ -722,7 +731,6 @@ fn main() {}
 ** use 'thiserror' crate
 #+begin_src toml
 thiserror = "*"
-
 #+end_src
 
 #+begin_src rust
@@ -785,7 +793,7 @@ fn main() {
 #+end_src
 
 ** Slices
-- là dạng chế độ xem mượn dữ liệu từ arrays.
+- là dạng chế độ xem mượn dữ liệu từ arrays or String.
 - Slices có thể là tạo ra iterator.
 - Indices giới hạn bởi arrays.
 #+begin_src rust

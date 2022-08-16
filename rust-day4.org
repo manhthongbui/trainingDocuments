@@ -1,0 +1,417 @@
+#+title: Rust Day4
+#+author: Dang Quang Vu
+
+
+* Parallel Execution
+** Threads
+- Threads cho phép chương trình của bạn thực hiện nhiều phép tính đồng thời.
+*** Thread Basic
+- Quá trình thực thi luồng xảy ra nối tiếp, từng dòng mã được thực thi lần lượt
+  từng dòng. (one-by-one || line-by-line)
+- Multicore CPUs có thể có nhiều luồng
+- Mặc dù một CPU có thể có nhiều multicore nhưng mỗi thread vẫn thực thi mỗi
+  dòng tại một thời điểm. nhưng vì phần còn lại có thể thực thi cùng lúc nhiều
+  tác vụ có thể được thực hiện cùng 1 lúc.
+- Điều này dẫn tới việc sử dụng CPU tốt hơn có thể khiến cho chương trình của
+  bạn chạy nhanh hơn.
+- Các thread được cách ly hoàn toàn với nhau và cần phải thực hiện thêm các bước
+  để các thread có thể giao tiếp chuyển tải dữ liệu cho nhau.
+- Sự giao tiếp giữa các luồng cần được giảm thiểu vì quá nhiều luồng giao tiếp
+  với nhau có thể dẫn tới một chương trình đa luồng chạy chậm hơn chương trình
+  đơn luồng.
+*** Working with Threads
+- Quá trình sinh ra một thread được gọi là "spawned".
+- Chúng ta cũng có thể "spawned" nhiều thread hơn nhưng việc đi sâu vào làm việc
+  với nó và giao tiếp chúng sẽ khó khơn hơn.
+- Trong hầu hết các trường hợp, bạn sẽ spawned các thread của mình trên main
+  thread ( fn main() ).
+- Sau đó chương trình của bạn sẽ không còn thực thi từng dòng nữa khi sử dụng
+  các threads.
+- Bạn cần sẽ phải lên kế hoạch rõ ràng và cẩn thận để triển khai các luồng trong
+  1 chương trình.
+- Sau khi threads của các bạn được thực thi xong, nó sẽ cần trải qua một quá
+  trình gọi là "join". Nó cần phải "join" vào threads chính.
+- Đó là cách chúng ta đảm bảo rằng các công biệc trên thread được hoàn thành.
+*** Thread Memory
+- Threads có "thread-local" memory.
+  + Điều này có nghĩa là dữ liệu của thread có tính ownership, và không thể truy
+    cập được từ những thread khác.
+  + Bạn có thể move or copy các dữ liệu vào các thread và điều này thường được
+    thực hiện khi thread được spawned. Đây là cách dễ nhất để lấy dữ liệu vào
+    một thread và là phương pháp chính khi bạn bắt đầu lập trình multithread programming.
+  + Bất kỳ dữ liệu nào bạn move vào thread sẽ được lưu vào "thread-local" và bạn
+    sẽ không thể truy cập nó từ bên ngoài thread được nữa.
+  + Điều này cũng tương tự như bạn move dữ liệu vào một function, dữ liệu sau đó
+    sẽ không thể truy cập được nữa.
+*** Demo
+#+begin_src rust
+use std::thread;
+
+fn main() {
+    let iterations = 10;
+    let a = thread::spawn(move || {
+        for i in 1..=iterations {
+            println!("A: {}", i);
+        }
+    });
+
+    let b = thread::spawn(move || {
+        for i in 1..=iterations {
+            println!("       B: {}", i);
+        }
+    });
+    a.join();
+    b.join();
+}
+#+end_src
+
+#+begin_src rust
+use std::{
+    thread::{self, JoinHandle},
+    time::Duration,
+};
+
+fn main() {
+    let value: JoinHandle<usize> = thread::spawn(move || {
+        thread::sleep(Duration::from_secs(2));
+        27
+    });
+    println!("waiting for thread");
+    match value.join() {
+        Ok(n) => println!("{}", n),
+        Err(e) => println!("{:?}", e),
+    }
+}
+#+end_src
+
+** Channels
+- Các channels cho phép các thread dễ dàng giao tiếp với nhau.
+- Các channels cung cấp phương thức giao tiếp 1 chiều giữa các threads.
+- Chúng ta sử dụng "message passing" thông qua 2 điểm đầu cuối "Sender" & "Receiver".
+- Dữ liệu thông tin được đặt vào "sender" và chúng được đọc bởi "receiver",
+- Channels có thể hạn chế dung lượng cũng có thể không giới hạn dung lượng.
+- Giới hạn dung lượng của channels rất hữu ích khi bạn có nhiều threads đang
+  hoạt động.
+** crossbeam-channel
+#+begin_src toml
+[dependence]
+crossbeam-channel = "0.5.6"
+#+end_src
+
+- Các message có thể được gửi qua các channel thường được gói gọn trong một
+  enumeration. Mặc dù thông thường bạn có thể gửi bất kỳ dữ liệu nào qua một
+  channel nhưng sử dung enum sẽ giúp bạn gửi nhiều loại message khác nhau. và
+  bạn có thể dễ dàng =match= chúng.
+- Message passing qua các channel có thể là dạng blocking hoặc non-blocking.
+  + Blocking: nghĩa là code sẽ cố gắng thực hiện một behavior và đợi cho đến khi
+    nó thành công hoặc thất bại.
+  + Non-blocking: nghĩa là code sẽ cố gắng thực hiện một behavior và return ngay
+    lập tức dù nó có thành công hay không.
+- Nếu chúng ta block trên sender, điều này có nghĩa là channel đã full.
+- Còn nếu block trên receiver điều này có nghĩa là không có message nào để đọc
+  từ channel.
+- Blocking behavior được xác định bởi function call, không phải từ chính channel
+  đó.
+- Nếu ta sử dụng các blocking function trên channel chúng sẽ đợi nếu cần, sau đó
+  ta có thể sử dụng non-blocking function trên cùng 1 channel, chúng sẽ trở lại.
+  Điều này cho phép bạn mix & match tuỳ thuộc nào nhu cầu của chương trình.
+
+#+begin_src rust
+use crossbeam_channel::unbounded;
+use std::thread;
+
+enum ThreadMsg {
+    PrintData(String),
+    Sum(i32, i32),
+    Quit,
+}
+
+fn main() {
+    let (s, r) = unbounded();
+    let handle = thread::spawn(move || loop {
+        match r.recv() {
+            Ok(msg) => match msg {
+                ThreadMsg::PrintData(d) => println!("{}", d),
+                ThreadMsg::Sum(lhs, rhs) => println!("{} + {} = {}", lhs, rhs, lhs + rhs),
+                ThreadMsg::Quit => {
+                    println!("Thread termination");
+                    break;
+                }
+            },
+            Err(e) => {
+                println!("disconnected");
+                break;
+            }
+        }
+    });
+
+    s.send(ThreadMsg::PrintData("hello from main!".to_owned()));
+    s.send(ThreadMsg::Sum(10, 10));
+    s.send(ThreadMsg::Quit);
+
+    handle.join();
+}
+#+end_src
+
+* Shared Ownership
+** Smart Pointer
+- Cho phép bạn chia sẻ ownership của một dữ liệu.
+- Reference Counted - "Rc"
+  + Đây là một kỹ thuật đơn giản giúp gia tăng bộ đếm một khi có thêm owner được
+   thêm vào.
+  + Bất cứ khi nào owner bị xoá thì số lượng tham chiếu sẽ giảm.
+  + Khi nào bộ đếm về 0 thì dữ liệu sẽ bị drop.
+- Atomic Reference Counted - "Arc"
+  + An toàn khi sử dụng nó trên một thread.
+  + Atomic operation là các phép toán luôn thành công.
+
+#+begin_src rust
+use std::rc::Rc;
+
+#[derive(Debug)]
+struct Vehicle {
+    vin: String,
+}
+
+#[derive(Debug)]
+struct Door {
+    vehicle: Rc<Vehicle>,
+}
+
+fn main() {
+    let car = Rc::new(Vehicle {
+        vin: "123".to_owned(),
+    });
+
+    let left_door = Door {
+        vehicle: Rc::clone(&car),
+    };
+
+    let right_door = Door {
+        vehicle: Rc::clone(&car),
+    };
+
+    drop(car);
+
+    println!("vehicle = {:?}", left_door.vehicle);
+}
+#+end_src
+
+#+begin_src
+: vehicle = Vehicle { vin: "123" }
+#+end_src
+
+** Recap
+- =Rc= & =Arc= Được sử dụng để chia sẻ ownership.
+- Data sẽ bị drop khi toàn bộ owner bị xoá.
+- =Rc= thường dùng cho single thread.
+  + =Rc::clone(&self)= để tạo mới reference
+- =Arc= thường dùng cho multiple thread.
+  + =Arc::clone(&self)= để tạo mới reference
+* Cell & RefCell
+- Kiểu dữ liệu này cho phép bạn thay đổi dữ liệu được shared.
+- Đôi khi ban làm việc với keyword =mut= bạn sẽ nhận được vô số lỗi compiler
+- Các vấn đề liên quan tới ownership thường khó giải quyết.
+- Bạn có thể tạo =mut memory= vĩnh viễn những nó sẽ có nhiều hạn chế.
+- Việc sử dụng Cell & RefCell sẽ giúp bạn dễ dàng thay đổi dữ liệu nhưng sẽ đổi
+  lại một vấn đề về hiệu suất của program.
+** Cell
+- Cell giúp tạo một vị trí bộ nhớ có thể thay đổi vĩnh viễn, nó có thể thay đổi
+  kể cả khi bạn khởi tạo nó là immutable.
+- Bất cứ khi nào bạn truy cập dữ liệu trong =Cell=, bạn sẽ luôn =move= hoặc =copy= dữ
+  liệu.
+- Bạn không thể borrow dữ liệu từ một =Cell=, điều này có nghĩa là bạn sẽ cần phải
+  lấy cả =clone= và =copy= trên dữ liệu của bạn để lưu trữ trong một =Cell= trong hầu
+  hết các trường hợp.
+- Vì dữ liệu phải triển khai Copy,Clone nên nó thường ko thích hợp với dữ liệu
+  lớn. Bạn sẽ muốn giới hạn dữ liệu ở kích thước nhỏ.
+- Bạn sẽ muốn sử dụng =mut= nếu muốn loại bỏ bớt các vấn đề về hiệu suất.
+
+#+begin_src rust
+use std::cell::Cell;
+
+#[derive(Debug)]
+struct Book {
+    signed: Cell<bool>,
+}
+
+impl Book {
+    fn sign(&self) {
+        self.signed.set(true)
+    }
+    fn signed(&self) -> bool {
+        self.signed.get()
+    }
+}
+
+fn main() {
+    let my_book = Book {
+        signed: Cell::new(false),
+    };
+
+    println!("signed: {}", my_book.signed());
+    my_book.sign();
+    println!("signed: {}", my_book.signed());
+}
+#+end_src
+
+** RefCell
+- Giống như Cell nhưng nó chỉ luôn sử dụng borrowing dữ liệu chứ không =move= or =copy=.
+- Borrowed sẽ được kiểm tra trong runtime thay bì compiletime.
+- Điều đó dẫn tới việc đánh đổi về hiệu suất nếu bạn triển khai và có thể có
+  nguy cơ sảy ra panic nếu bạn vô tính mượn sai.
+- Các quy tắc borrow checker vẫn được áp dụng.
+  + Bạn chỉ có thể có 1 RefCell mutable.
+- Bạn chỉ nên sử dụng RefCell thì thật sự cần thiết.
+- RefCell không an toàn cho Thread vì vậy bạn chỉ nên sử dụng nó trên
+  single-thread.
+#+begin_src rust
+use std::cell::RefCell;
+
+struct Person {
+    name: RefCell<String>,
+}
+
+fn main() {
+    let name = "Vu".to_owned();
+    let person = Person {
+        name: RefCell::new(name),
+    };
+
+    // let name = person.name.borrow();
+    {
+        let mut name = person.name.borrow_mut();
+        *name = "Dang Quang".to_owned();
+        println!("{}", name);
+    }
+    {
+        person.name.replace("Dang Quang Vu".to_owned());
+        println!("{:?}", person.name);
+    }
+}
+#+end_src
+
+#+begin_src
+: Dang Quang
+: RefCell { value: "Dang Quang Vu" }
+#+end_src
+
+** Recap
+- Cell & RefCell cho phép tạo dữ liệu mutable vĩnh viễn.
+  + =Cell= return owned data
+  + =RefCell= return borrowed data
+- RefCell borrowing có thể làm chương trình bị panic trong runtime.
+  + try_borrow & try_borrow_mut sẽ không sảy ra việc panicking
+- Bạn nên sử dụng mut và &mut
+  + Bạn chỉ nên sử dụng Cell & RefCell khi không thể tránh.
+
+** Demo
+#+begin_src rust
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
+#[derive(Debug)]
+enum MenuItem {
+    Drink,
+    Salad,
+}
+
+#[derive(Debug)]
+struct ItemOder {
+    item: MenuItem,
+    quantity: i32,
+}
+
+#[derive(Debug)]
+struct TableOrder {
+    items: Vec<ItemOder>,
+}
+
+fn new_table_order() -> TableOrder {
+    TableOrder {
+        items: vec![ItemOder {
+            item: MenuItem::Drink,
+            quantity: 3,
+        }],
+    }
+}
+
+type Order = Rc<RefCell<Vec<TableOrder>>>;
+
+#[derive(Debug)]
+struct Chef(Order);
+
+#[derive(Debug)]
+struct WaitStaff(Order);
+
+#[derive(Debug)]
+struct Accounting(Order);
+
+fn main() {
+    let orders = Rc::new(RefCell::new(vec![]));
+    let chef = Chef(Rc::clone(&orders));
+    let waitstaff = WaitStaff(Rc::clone(&orders));
+    let accounting = Accounting(Rc::clone(&orders));
+
+    let order = new_table_order();
+
+    {
+        orders.borrow_mut().push(order);
+    }
+    dbg!(chef.0.borrow());
+    drop(chef);
+
+    dbg!(waitstaff.0.borrow());
+    drop(waitstaff);
+
+    dbg!(accounting.0.borrow());
+}
+#+end_src
+
+* Threads & Mutex
+- Như bạn đã biết Thread thực thi mã dạng không xác định, có nghĩa nó chúng có
+  thể đọc và ghi dữ liệu 1 cách ngẫu nhiên.
+- Có thể shared data giữa các thread nhưng dữ liệu có thể bị hỏng vì không có gì
+  đảm bảo là dữ liệu được đọc hoặc ghi theo thứ tự thích hợp.
+- Điều này khiến cho việc code thread trở nên khó khăn hơn.
+** Synchronization
+- Mutex - Mutually Exclusive lock
+- Mutex sử dụng Atomic Operation để đảm bảo rằng dữ liệu chỉ được truy cập bởi 1
+  thread duy nhất tại 1 thời điểm.
+** Mutex
+- Mutexes là wrap data ( tương tự Option, Result ).
+  + Only one Thread được truy cập vào 1 thời điểm
+  + Khi dữ liệu mutex được truy cập bởi 1 thread, nó sẽ ngăn chặn các threah
+    khác truy cập.
+- Mutexes không thể chia sẻ dữ liệu giữa các thread.
+  + Bạn chỉ có thể share dữ liệu đi wrap nó trong một SmartPointer ( Arc ).
+- Use parking_lot để khởi tạo một Mutex.
+
+#+begin_src rust
+use parking_lot::Mutex;
+use std::sync::Arc;
+use std::thread;
+
+struct Counter(usize);
+
+fn main() {
+    let counter = Counter(0);
+    let shared_counter = Arc::new(Mutex::new(counter));
+
+    let thread1_counter = Arc::clone(&shared_counter);
+    let thread2_counter = shared_counter.clone();
+
+    let thread1 = thread::spawn(move || {
+        let mut counter = thread1_counter.lock();
+        counter.0 += 1;
+    });
+
+    let thread2 = thread::spawn(move || {
+        let mut counter = thread2_counter.lock();
+        counter.0 += 1;
+    });
+
+    thread1.join().and_then(|_| thread2.join());
+    println!("{}", shared_counter.lock().0);
+}
+#+end_src
