@@ -1,0 +1,3076 @@
+#+title: Rust Course
+#+author: Dang Quang Vu
+#+description: Rust languages courses
+
+* Introduction Rust Languages
+** Why Rust?
+- Rust có các tính năng của ngôn ngữ bật cao, nhưng lại không có ảnh hưởng nhiều
+  về hiệu suất.
+- Rust cho phép trình biên dịch thực thi các behaviors của chương trình.
+  + Điều này giúp tăng đáng kể độ tin cậy của program.
+- Nó có khả năng quản lý các gói package dễ dàng, tương tự như npm trong javascript.
+- Các thư viện có thể sử dụng trong các program một cách dễ dàng.
+- Cộng đồng developer thận thiện và mạnh mẽ.
+- Ứng dụng mạnh mẽ trong blockchain.
+** Một vài tính năng khác biệt so với ngôn ngữ khác
+- Hỗ trợ =First-class multithreading.=
+  + Compiler giúp phát hiện lỗi truy cập dữ liệu không đúng cách, điều này giúp
+    việc viết code đa luồng một cách dễ dàng hơn.
+- Compiler của Rust là một hệ thống rất mạnh, nó đủ mạnh để phát hiện ra các lỗi
+  type system.
+  + Việc phát hiện lỗi trong compile time giúp việc tái cấu trúc và fix lỗi một
+    cách dễ dàng hơn.
+  + Nó sẽ giúp bạn giảm số lần tesing cần thiết để đảm bảo code của bạn chạy
+    chính sác.
+  + Rust có một hệ thống modules system với các quy tắc linh hoạt cho phép bạn
+    quản lý code thành nhiều file một cách đơn giản.
+- Cách thêm một dependency rất dễ dàng với chỉ 1 dòng trong file cấu hình.
+  + Với việc chỉ cần tên gói package và version của package.
+  + Package sẽ được tự động tải xuống và liên kết với dự án trong lần compile
+    tiếp theo.
+- Rust cung cấp các tool rất thuận lợi như:
+  + Generate docs, Lint Code, Auto format.
+
+** Installation
+- Windown:
+  + Trên Windows, truy cập =https://www.rust-lang.org/tools/install= và làm theo
+    hướng dẫn để cài Rust. Bạn cũng sẽ cần C++ build tools cho =Visual Studio 2013=
+    hoặc mới hơn. Cách dễ nhất là cài Build Tools for Visual Studio 2019. Hãy đảm
+    bảo “C++ build tools” được chọn.
+
+- Linux & MacOs
+  + Install with =Command line=
+    #+begin_src
+curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh
+    #+end_src
+
+  + Bạn cần phải cài thêm C Compiler vì một số package của Rust được viết
+    bằng C.
+    #+begin_src
+// install on MacOs
+xcode-select --install
+    #+end_src
+
+** Run a program with Rust
+- Khởi tạo dự án:
+  #+begin_src
+1. cargo init
+2. cargo new --bin nameproject
+3. cargo new --lib nameproject
+  #+end_src
+
+- Cấu trúc Project rust:
+  #+begin_src
+  - src
+    + main.rs/lib.rs
+  - Cargo.toml
+  #+end_src
+
+- Run a Project
+  #+begin_src
+$ rustc src/main.rs
+$ ./main
+output: Hello World!
+  #+end_src
+
+** What is Cargo?
+- Cargo là hệ thống build và quản lý thư viện của Rust. Hầu hết =Rust coder -
+  Rustaceans= đều sử dụng Cargo để quản lý project của họ bởi vì Cargo xử lý
+  nhiều tác vụ cho bạn ví dụ như: build code, tải thư viện, và build những thư
+  viện đó. (Chúng ta gọi những thư viện mà code của bạn cần là những
+  dependency.)
+#+begin_src
+$ cargo new ...
+$ cargo build
+$ cargo run
+$ cargo check
+$ cargo test
+#+end_src
+
+* Common Programming Concepts
+** Data Types
+- Hãy nhớ rằng Rust là ngôn ngữ định kiểu tĩnh (statically typed), Tức là Rust
+  phải biết được kiểu dữ liệu của tất cả các biến tại thời điểm biên dịch.
+- Boolean: true/false
+- Double/Float: 1.2, 5.5, 200.001, 2.0.
+- Character: 'a', 'b', 'z', '6', '$'.
+- String: "Hello", "string here", "this is a string".
+- Integer: 1,2,3,51,21,-2.
+|---------+--------+-----------|
+| Độ dài   | Signed | Unsigned  |
+|---------+--------+-----------|
+| 8-bit   | i8     | u8        |
+| 16-bit  | i16    | u16       |
+| 32-bit  | i32    | u32       |
+| 64-bit  | i64    | u64       |
+| 128-bit | i128   | u128      |
+| arch    | isize  | usize     |
+|---------+--------+-----------|
+
+** Variables - Biến.
+- Khởi tạo bộ nhớ tạm và gán dữ liệu như một địa chỉ lưu trú giúp developer dễ
+  dàng tìm kiếm và sử dụng các dữ liệu đó.
+- Khởi tạo biến nó luôn luôn được mặc đình là biến =immutable=, nó không thể thay
+  đổi trong quá trình run-program.
+#+begin_src rust
+fn main() {
+    let immutable = 1;
+    let mut mutable = "hello";
+}
+#+end_src
+
+** Function
+- Một cách để =đóng gói= các một chức năng của project.
+#+begin_src rust
+fn add(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+fn main() {
+    let result = add(2,3);
+    // println! macro
+    println!("result = {}", result);
+}
+#+end_src
+
+#+begin_src
+: result = 5
+#+end_src
+
+** println macro
+- "Prints" =displays= các thông tin lên trên terminal.
+- Mục đích thường được sử dụng cho =debugging=.
+
+#+begin_src rust
+fn main() {
+    println!("Hello World!");
+    print!("Ok1");
+}
+#+end_src
+
+#+begin_src
+: Hello World!
+#+end_src
+
+** Control Flow using "if"
+#+begin_src rust
+fn main() {
+    let a = 99;
+    if a > 99 {
+        println!("lon hon 99");
+    } else if a < 99 {
+        println!("nho hon 99");
+    } else {
+        println!("bang 99");
+    }
+}
+#+end_src
+
+#+begin_src
+: bang 99
+#+end_src
+
+** Using Loops ( loop/while )
+- Using loops
+  #+begin_src rust
+fn main() {
+    let mut a = 0;
+    loop {
+        if a == 5 {
+            break;
+        }
+        println!("{}", a);
+        a += 1;
+    }
+}
+  #+end_src
+
+  #+begin_src
+  : 0
+  : 1
+  : 2
+  : 3
+  : 4
+  #+end_src
+
+- Using while
+  #+begin_src rust
+fn main() {
+    let mut a = 0;
+    // while true {..doing..}
+    while a != 5 {
+        println!("{}", a);
+        a += 1;
+    }
+}
+  #+end_src
+
+  #+begin_src
+  : 0
+  : 1
+  : 2
+  : 3
+  : 4
+  #+end_src
+
+** =Match=
+- Semilar to if...else
+- Add logic to program
+
+#+begin_src rust
+fn main() {
+    let info = "1Dang";
+    match info {
+        "Dang" => println!("Dang Quang Vu"),
+        "Quang" => println!("Quang Vu"),
+        "Vu" => println!("Vu"),
+        _ => println!("not my name"),
+    }
+}
+#+end_src
+
+#+begin_src
+: Dang Quang Vu
+#+end_src
+
+- =Prefer match over if..else= khi lầm việc với =single variables=.
+
+** Basic arithmetic
+  #+begin_src rust
+fn main() {
+    let sum = 2 + 4;
+    let subtract = 10 - 4;
+    let division = 10/2;
+    let mult = 4 * 2;
+    let rem = 6 % 3;
+}
+  #+end_src
+
+* Working with Data
+** Enumeration ( Enum )
+- Enums cho phép bạn có thể định nghĩa một kiểu dữ liệu bằng cách liệt kê các kiểu
+dữ liệu của nó.
+- Mỗi dữ liệu có trong 1 enum đó còn được gọi là 1 "variant".
+#+begin_src rust
+enum Direction {
+    Up,
+    Down,
+    Right,
+    Left
+}
+
+fn main() {
+    let go = Direction::Up;
+    match go {
+        Direction::Up => println!("up"),
+        Direction::Down => println!("down"),
+        Direction::Right => println!("right"),
+        Direction::Left => println!("left"),
+    }
+}
+
+#+end_src
+
+#+begin_src
+: up
+#+end_src
+
+** Struct
+- Structure Có thể coi là một kiểu dữ liệu mà lập trình viên tự định nghĩa, được
+  tạo ra để nhóm các giá trị có mối liên hệ với nhau và tạo thành một tập giá
+  trị có ý nghĩa.
+- Nếu bạn đã quen thuộc với lập trình hướng đối tượng (object-oriented
+  language - OOP), struct giống như khái niệm object ở trong đó.
+
+#+begin_src rust
+#[derive(Debug)]
+enum Contries {
+    Japan,
+    Germany,
+    American,
+}
+
+#[derive(Debug)]
+struct CarBrand {
+    name: String,
+    created: i32,
+    brand: Contries,
+}
+
+fn main(){
+    let my_car = CarBrand{
+        name: "Lambogini Urus".to_owned(),
+        created: 2022,
+        brand: Contries::Germany,
+    };
+    println!("{:?}", my_car);
+    println!("name car: {}", my_car.name);
+}
+
+#+end_src
+
+#+begin_src
+: CarBrand { name: "Lambogini Urus", created: 2022, brand: Germany }
+: Lambogini Urus
+#+end_src
+
+** Tuples
+- Tuple là cách để nhóm một số giá trị tương ứng với những =kiểu dữ
+  liệu khác nhau lại=.
+- Tuples có độ dài cố định: một khi được khai báo, chúng ta không thể tăng hoặc
+  giảm kích thước của chúng.
+- Là kiêu dữ liệu dùng để "record".
+- Có thể =lưu trữ ẩn danh= ( Không cần sử dụng =tên trường= )
+- Hữu ích để trả về các cặp dữ liệu từ function.
+- Có thể dễ dàng =destructured= thành các biến.
+
+#+begin_src rust
+fn number() -> (i32, i32, i32) {
+    (4,3,2)
+}
+
+fn main() {
+    let list = number();
+    let (x,y,z) = number();
+    println!("{}, {}", x, list.0);
+    println!("{}, {}", y, list.1);
+    println!("{}, {}", z, list.2);
+
+    let (name, age) = ("Vu", 27);
+    println!("{}, {}", name, age);
+
+    let favorites = ("Watching TV", "Music", "Football", "Travel");
+    let sport = favorites.2;
+    println!("{}", sport);
+
+}
+
+#+end_src
+
+#+begin_src
+: 4, 4
+: 3, 3
+: 2, 2
+: Vu, 27
+: Football
+#+end_src
+
+** Expression
+- Rust là ngôn ngữ dạng Expression-based
+  + Hầu hết mọi thứ đều được đánh giá và return lại một giá trị nào đó.
+
+#+begin_src rust
+fn main() {
+    let number = 3;
+    let what_my_number = if number < 5 {
+        true
+    } else {
+        false
+    };
+
+    let what_my_number2 = number < 5;
+    println!("{:?}", what_my_number2);
+}
+#+end_src
+
+#+begin_src
+: true
+#+end_src
+
+- RESULT:
+  #+begin_src rust
+fn main() {
+    let number = 3;
+    let message = match number {
+        1 => "Hello",
+        _ => "OK",
+    };
+    println!("{}", message);
+}
+  #+end_src
+
+  #+begin_src
+  : OK
+  #+end_src
+
+- Examples:
+  #+begin_src rust
+enum Access {
+    Admin,
+    Client,
+    Manager,
+}
+
+fn main() {
+    let access = Access::Client;
+    let auth = match access {
+        Access::Admin => "Can Access",
+        _ => "Denied!",
+    };
+    println!("{}", auth);
+}
+  #+end_src
+
+  #+begin_src
+  : Denied!
+  #+end_src
+
+* Stack & Heap
+- Cả stack và heap đều là những phần bộ nhớ có sẵn cho code của bạn để sử dụng
+  trong runtime, nhưng chúng được cấu trúc theo những cách khác nhau.
+- Stack lưu trữ lưu trữ các giá trị theo thứ tự mà nó nhận được và xóa các giá
+  trị theo thứ tự ngược lại. Điều này được gọi là last in, first out (Vào sau,
+  ra trước).
+- Tất cả dữ liệu được lưu trữ trên stack phải có kích thước cố định (fixed
+  size), đã biết.
+- Thay vào đó dữ liệu có kích thước không xác định (unknown size) tại thời điểm
+  biên dịch hoặc kích thước có thể thay đổi phải được lưu trữ trên heap.
+- Heap ít được tổ chức hơn: khi bạn đặt dữ liệu trên heap, bạn gửi yêu cầu một
+  khoảng trống nhất định trong bộ nhớ. Bộ cấp phát bộ nhớ tìm thấy một chỗ trống
+  trên heap đủ lớn, đánh dấu nó là đang được sử dụng, và trả về một con trỏ, đó
+  là địa chỉ cuả vị trí đó.
+- Quá trình này được gọi là allocating on the heap (cấp phát trên heap) và đôi
+  khi được viết tắt là allocating (việc đẩy các giá trị vào stack không được coi
+  là cấp phát).
+- Vì con trỏ tới heap có kích thước cố định (fixed size) và đã biết, bạn có thể
+  lưu trữ con trỏ trên stack, nhưng khi bạn muốn dữ liệu thực sự, bạn phải đi
+  theo con trỏ.
+- Đẩy dữ liệu vào stack nhanh hơn là cấp phát trên heap vì bộ cấp phát không bao
+  giờ phải tìm kiếm một nơi để lưu dữ liệu mới; vị trí đó luôn ở trên cùng của
+  stack. Tương tự, việc phân bổ không gian trên heap đòi hỏi nhiều công việc
+  hơn, bởi vì bộ cấp phát trước tiên phải tìm một không gian đủ lớn để chứa dữ
+  liệu sau đó thực hiện ghi sổ (bookkeeping) để chuẩn bị cho đợt cấp phát tiếp
+  theo.
+- Truy cập dữ liệu trong heap chậm hơn so với truy cập dữ liệu trên stack vì bạn
+  phải đi theo một con trỏ để đến đó. Các bộ xử lý hiện đại nhanh hơn nếu chúng
+  ít nhảy qua lại bộ nhớ hơn.
+- Khi code của bạn gọi một hàm, các giá trị đã được truyền vào hàm (có thể bao
+  gồm cả con trỏ đến dữ liệu trên heap) và các biến cục bộ của hàm được đẩy lên
+  stack. Khi hàm kết thúc, những giá trị đó bị lấy ra khỏi stack.
+
+* =Ownership & Borrowing=
+** Introduction Ownership
+- Thông thường mỗi ngôn ngữ có phương pháp quản lý bộ nhớ riêng chúng và Rust sử
+  dụng cái gọi là Ownership.
+- Ownership là một chức năng độc đáo của Rust, nó giúp Rust thực thi code một
+  cách hiệu quả và giúp đảm bảo rằng code được biên dịch thực thi chính xác
+  trong các trường hợp khác nhau.
+- Vậy Ownership là gì?
+- Ownership là một tập hợp các quy tắc chi phối cách một chương trình Rust quản
+  lý bộ nhớ. Tất cả các chương trình phải quản lý cách chúng sử dụng bộ nhớ của
+  máy tính khi chạy.
+
+- Quy Tắc Ownership:
+  + Mỗi giá trị trong Rust có một biến gọi là owner của nó.
+  + Chỉ có thể có một owner tại một thời điểm.
+  + Khi owner ra khỏi phạm vi (scope) của nó, giá trị sẽ bị xoá.
+
+#+begin_src rust
+enum Contries {
+    Japan,
+    Germany
+}
+
+fn car(brand: Contries) {
+    match brand {
+        Contries::Japan => println!("Japan Car"),
+        Contries::Germany => println!("Super Car"),
+    }
+}
+
+fn main() {
+    let my_car = Contries::Germany;
+    car(my_car);
+    // car(my_car);
+}
+
+#+end_src
+
+** Recap
+- Memory phải được quản lý một cách tốt nhất để tránh các trường hợp bị rò rỉ
+  bộ nhớ.
+- Rust sử dụng "ownership" để thực hiện việc quản lý bộ nhớ.
+  - "Owner" của dữ liệu phải dọn dẹp bộ nhớ.
+  - Điều này sẽ sảy ra ở cuối scope.
+- Hành vi mặc định khi sử dụng data là  "move" memory sang một owner mới.
+- Sử dụng dấu =&= để cho phép mượn bộ nhớ.
+
+** Examples:
+  #+begin_src rust
+struct Book {
+    name: String,
+    author: String,
+    created: i32,
+}
+
+fn display_name(book: &Book) {
+    println!("{}", book.name);
+}
+
+fn display_author(book: &Book) {
+    println!("{}", book.author);
+}
+
+fn display_year_created(book: &Book) {
+    println!("{}", book.created);
+}
+
+fn main() {
+    let my_book = Book {
+        name: "Rust book".to_string(),
+        author: "Dang Quang Vu".to_string(),
+        created: 2020,
+    };
+    display_name(&my_book);
+    display_author(&my_book);
+    display_year_created(&my_book);
+}
+
+  #+end_src
+
+#+begin_src
+: Rust book
+: Dang Quang Vu
+: 2020
+#+end_src
+
+* Implementation - impl
+#+begin_src rust
+struct Book {
+    name: String,
+    author: String,
+    created: i32,
+}
+
+impl Book {
+    fn new_book() -> Self {
+        Self {
+            name: "Rust book".to_string(),
+            author: "Dang Quang Vu".to_string(),
+            created: 2020,
+        }
+    }
+    fn display_name(&self) {
+        println!("{:?}", self.name);
+    }
+
+    fn display_author(&self) {
+        println!("{:?}", self.author);
+    }
+
+    fn display_year_created(&self) {
+        println!("{:?}", self.created);
+    }
+}
+
+fn main() {
+    let my_book = Book {
+        name: "Rust book".to_string(),
+        author: "Dang Quang Vu".to_string(),
+        created: 2020,
+    };
+    my_book.display_name();
+    my_book.display_author();
+    my_book.display_year_created();
+
+    let my_book2 = Book::new_book();
+    my_book2.display_name();
+}
+#+end_src
+
+#+begin_src
+: "Rust book"
+: "Dang Quang Vu"
+: 2020
+: "Rust book"
+#+end_src
+
+* Data Collections
+** Vector
+- Vector là cấu trúc dữ liệu cho phép bạn lưu trữ nhiều dữ liệu tương tự như
+  tuples nhưng các dữ liệu này phải có cùng kiểu dữ liệu, và bạn có thêm bớt
+  thêm, xoá dữ liệu trong vector 1 cách dễ dàng.
+#+begin_src rust
+fn main() {
+    let mut my_numbers = vec![1,2,3,4];
+    my_numbers.push(5);
+    println!("{:?}", my_numbers);
+
+    let mut my_vec = Vec::new();
+    my_vec.push(1);
+    println!("{:?}", my_vec);
+}
+#+end_src
+
+#+RESULTS:
+: [1, 2, 3, 4, 5]
+: [1]
+
+- Recap:
+  + Vectors cho phép bạn lưu trữ nhiều phần dữ liệu có cùng 1 kiểu dữ liệu.
+  + Dữ liệu có thể dễ dàng được thêm, xoá.
+  + vec! macro có thể được sử dụng để khởi tạo 1 vectors
+  + Sử dụng for..in để tạo vòng lặp qua các items trong vectors.
+
+- Examples:
+  #+begin_src rust
+fn main() {
+    let my_vec = vec![10,20,30,40,50];
+    for num in &my_vec {
+        match num {
+            40 => println!("40 ne"),
+            _ => println!("ok"),
+        }
+    }
+}
+  #+end_src
+
+  #+begin_src
+  : ok
+  : ok
+  : ok
+  : 40 ne
+  : ok
+  #+end_src
+
+** String
+- Có nhiều loại string trong Rust, nhưng có 2 loại được sử dụng phổ biến nhất
+  là:
+  + String - owned
+  + &str - borrowed String slice
+- Phải sử dụng Owned String để lưu trữ trong một =Struct=
+- Có thể sử dụng &str khi truyền vào một function.
+
+- Examples
+  #+begin_src rust
+fn print_it(data: &str){
+    println!("{:?}", data);
+}
+
+fn main() {
+    print_it("String slice");
+    let a_string = "owned string".to_owned();
+    let another_string = String::from("another string");
+    print_it(&a_string);
+    print_it(&another_string);
+}
+  #+end_src
+
+  #+begin_src
+: "String slice"
+: "owned string"
+: "another string"
+  #+end_src
+
+- Examples 2:
+  #+begin_src rust
+struct Student {
+    name: &str
+}
+
+fn main() {
+    let student_name = "Dang Quang Vu";
+    let student = Student {
+        name: student_name
+    }
+}
+  #+end_src
+
+  #+begin_src
+  : error: Could not compile `cargoQbFEkw`.
+  #+end_src
+
+- Fix:
+    #+begin_src rust
+#[derive(Debug)]
+struct Student {
+    name: String
+}
+
+fn main() {
+    let student_name = "Dang Quang Vu".to_owned();
+    let student = Student {
+        name: student_name
+    };
+    println!("{:?}", student);
+
+}
+    #+end_src
+
+    #+begin_src
+    : Student { name: "Dang Quang Vu" }
+    #+end_src
+#+title: Rust Course - Day 2
+#+author: Dang Quang Vu
+#+description: Rust languages courses
+
+* Expanding Knowledge
+** Derive
+- Cho phép bạn tự động triển khai =implementation= được viết sẵn cho một vài
+  trường hợp. ( Được sử dụng cho Struct và Enum ).
+
+#+begin_src rust
+#[derive(Debug, Clone, Copy)]
+enum Class {
+    CNTT,
+    KHMT
+}
+
+#[derive(Debug, Clone, Copy)]
+struct Student {
+    id: i32,
+    name: String,
+    class: Class,
+}
+
+fn print_student(stu: Student){
+    println!("{:?}", stu);
+}
+
+fn main() {
+    let student = Student {
+        id: 21,
+        name: "Dang Quang Vu",
+        class: Class::CNTT,
+    };
+    print_student(student);
+    println!("{:?}", student);
+
+}
+#+end_src
+
+** enum
+- Enum là loại dữ liệu đại diện cho một =mục= dữ liệu tại một thời điểm và mỗi mục
+  đó được gọi là một biến thể.
+- Tuy nhiên enum không chỉ giới hạn ở cá biến thể đơn giản, mà mỗi variant trong
+  enum có thể tuỳ chọn được dữ liệu bổ sung.
+
+#+begin_src rust
+enum PromoDiscount {
+    NewUser,
+    Holiday(String),
+}
+
+enum Discount {
+    Percent(f64),
+    Flat(i32),
+    Promo(PromoDiscount),
+    Custom(String)
+}
+#+end_src
+
+** Match Advance
+#+begin_src rust
+enum Discount {
+    Percent(i32),
+    Flat(i32),
+}
+
+struct Ticket {
+    event: String,
+    price: i32,
+}
+
+fn main() {
+    let flat = Discount::Flat(4);
+    match flat {
+        Discount::Flat(3) => println!("flat 3"),
+        Discount::Flat(price) => println!("price: {}", price),
+        _ => println!("anything else"),
+    }
+
+    let concept = Ticket {
+        event: "concept".to_owned(),
+        price: 32,
+    };
+    match concept {
+        Ticket {event,price: 32} => println!("price as event: {}", event),
+        Ticket {price,..} => println!("32$"),
+    }
+}
+
+#+end_src
+
+*** Exercise
+#+begin_src rust
+#[derive(Debug)]
+enum Gift {
+    Pen,
+    Book,
+    Clother,
+}
+
+enum Student {
+    Good(f64, Gift),
+    Normal(f64, Gift),
+    Weak(f64),
+}
+
+fn main() {
+    let rank = vec![
+        Student::Good(8.0, Gift::Pen),
+        Student::Normal(6.0, Gift::Book),
+        Student::Weak(5.0),
+    ];
+    for student in rank {
+        match student {
+            Student::Good(point, classs) => {
+                if point > 8.0 && point <= 10.0 {
+                    println!("good student {} point on {:?} class", point, classs)
+                }
+            }
+            Student::Normal(point, classs) => {
+                if point > 5.0 && point <= 8.0 {
+                    println!("normal student {} point on {:?} class", point, classs)
+                }
+            }
+            Student::Weak(point) => {
+                println!("weak student {} point", point)
+            }
+        }
+    }
+}
+#+end_src
+
+** Option type
+- Là kiểu dữ liệu có 1 hoặc 2 dữ liệu:
+  + Nếu có dữ liệu thì nó thuộc dạng dữ liệu đặc biệt.
+  + Hoặc không có dữ liệu gì cả.
+- Thường được sử dụng trong các trường hợp mà dữ liệu có thể có hoặc không có
+  sẵn.
+  + Sử dụng để tìm kiếm dữ liệu nào đó
+  + Tìm kiếm chỉ mục trong 1 danh sách
+  + Hoặc sử dụng cho các biểu mẫu.
+
+#+begin_src rust
+enum Option<T> {
+    Some(T),
+    None,
+}
+#+end_src
+
+- Vi du:
+  #+begin_src rust
+struct Student {
+    name: String,
+    age: Option<i32>,
+}
+
+fn main() {
+    let vu = Student {name: "Quang Vu".to_owned(), age: Some(27) };
+    let dang = Student {name: "Dang Vu".to_owned(), age: None};
+
+    match dang.age {
+        Some(age) => println!("student {:} year old", age),
+        None => println!("student age not yet provided")
+    }
+
+}
+
+  #+end_src
+
+  #+begin_src
+  : student age not yet provided
+  #+end_src
+
+- Examples
+#+begin_src rust
+struct Student {
+    name: String,
+    GPA: f64,
+}
+
+fn find_GPA(name: String) -> Option<f64> {
+    let class = vec![
+        Student {name: "Vu".to_owned(), GPA: 4.5},
+        Student {name: "Dang".to_owned(), GPA: 3.5},
+        Student {name: "Quang".to_owned(), GPA: 2.0},
+    ];
+    for stu in class {
+        if stu.name == name {
+            return Some(stu.GPA);
+        }
+    }
+    None
+}
+
+fn main() {
+    println!("{:?}", find_GPA("Vu".to_string()));
+}
+
+#+end_src
+
+#+begin_src
+: Some(4.5)
+#+end_src
+
+** Result
+- Tương tự nhiên kiểu dữ liệu Option nhưng khác 2 giá trị của Result là thành
+  công & thất bại.
+  + "Successfull" data
+  + "Error" data
+- Thường được sử dụng trong các trường hợp có thể thất bại như sao chép, chỉnh
+  sửa khởi tạo file. Call Api, data, Connecting websites.
+#+begin_src rust
+enum Result<T, E>{
+    Ok(T),
+    Err(E),
+}
+#+end_src
+
+*** Examples
+#+begin_src rust
+#[derive(Debug)]
+enum Menu {
+    MainMenu,
+    Shutdown,
+    Restart,
+}
+
+fn get_choice(input: &str) -> Result<Menu, String> {
+    match input {
+        "mainmenu" => Ok(Menu::MainMenu),
+        "shutdown" => Ok(Menu::Shutdown),
+        "restart" => Ok(Menu::Restart),
+        _ => Err("menu choice not found".to_owned()),
+    }
+}
+
+fn main() {
+    let a = get_choice("mainmenu");
+    match a {
+        Ok(a) => println!("{:?}", a),
+        Err(e) => println!("err {}", e),
+    }
+}
+#+end_src
+
+#+begin_src
+: MainMenu
+#+end_src
+
+** Documentation
+#+begin_src rust
+/// A struct student
+struct Student {
+    /// name of student
+    name: String,
+    /// GPA of Us
+    GPA: f64,
+}
+
+/// find GPA function
+fn find_GPA(name: String) -> Option<f64> {
+    let class = vec![
+        Student {name: "Vu".to_owned(), GPA: 4.5},
+        Student {name: "Dang".to_owned(), GPA: 3.5},
+        Student {name: "Quang".to_owned(), GPA: 2.0},
+    ];
+    for stu in class {
+        if stu.name == name {
+            return Some(stu.GPA);
+        }
+    }
+    None
+}
+
+fn main() {
+    println!("{:?}", find_GPA("Vu".to_string()));
+}
+#+end_src
+
+#+begin_src
+cargo doc --open
+#+end_src
+
+* Data Structures
+** HashMap
+- Đây là một cách hữu ích để lưu trữ thông tin và truy xuất thông tin khi bạn
+  biết chính xác những gì bạn đang tìm kiếm.
+- HashMap là dữ liệu được lưu trữ theo cặp key-value.
+- Hashmap sẽ giúp bạn truy xuất dữ liệu rất nhanh.
+
+#+begin_src rust
+use std::collections::HashMap;
+
+fn main() {
+    let mut class = HashMap::new();
+    class.insert("Vu", 27);
+    class.insert("Dang", 28);
+    class.insert("Quang", 21);
+    class.remove("Dang");
+
+    match class.get("Vu") {
+        Some(age) => println!("age = {}", age),
+        None => println!("not found"),
+    }
+
+    for (student, age) in class.iter() {
+        println!("student = {:?}, age = {:?}", student,age);
+    }
+
+    for student in class.keys() {
+        println!("student = {:?}", student);
+    }
+
+    for age in class.values() {
+    println!("age = {:?}", age);
+    }
+
+}
+#+end_src
+
+#+begin_src
+: age = 27
+: student = "Vu", age = 27
+: student = "Quang", age = 21
+: student = "Vu"
+: student = "Quang"
+: age = 27
+: age = 21
+#+end_src
+
+** Closures
+#+begin_src rust
+fn add_fn(a: i32, b: i32) -> i32 {
+    a + b
+}
+
+fn main() {
+    let sum = add_fn(2,3);
+    let add1 = | a: i32, b:i32 | -> i32 {
+        a + b
+    };
+    let sum1 = add1(2,3);
+
+    let add2 = |a , b| a + b;
+    let sum2 = add2(2,3);
+}
+#+end_src
+
+** Map Combinator
+#+begin_src rust
+fn maybe_some() -> Option<i32> {
+    Some(4)
+}
+
+fn maybe_word() -> Option<String> {
+    Some("Hello".to_owned())
+}
+
+fn main() {
+    let plus_one = match maybe_some() {
+        Some(num) => Some(num + 1),
+        None => None,
+    };
+
+    let plus_one_upgrade = maybe_some().map(|num| num + 1);
+    println!("{:?}", plus_one_upgrade);
+}
+#+end_src
+
+** Option Combinator
+#+begin_src rust
+fn main() {
+    let a: Option<i32> = Some(1);
+
+    let a_is_some = a.is_some();
+    dbg!(a_is_some);
+
+    let a_is_none = a.is_none();
+    dbg!(a_is_none);
+
+    let a_map = a.map(|num| num + 1);
+    dbg!(a_map);
+
+    let a_filtered = a.filter(|num| num == &1);
+    dbg!(a_filtered);
+
+    let a_or_else = a.or_else(|| Some(5));
+    dbg!(a_or_else);
+
+    let a_unwarp_or_else = a.unwrap_or_else(|| 0);
+    dbg!(a_unwarp_or_else);
+
+    let a_unwrap = a.unwrap();
+    println!("unwrap = {:?}", a_unwrap);
+}
+#+end_src
+
+#+begin_src
+[src/main.rs:6] a_is_some = true
+[src/main.rs:9] a_is_none = false
+[src/main.rs:12] a_map = Some(
+    2,
+)
+[src/main.rs:15] a_filtered = Some(
+    1,
+)
+[src/main.rs:18] a_or_else = Some(
+    1,
+)
+[src/main.rs:21] a_unwarp_or_else = 1
+unwrap = 1
+#+end_src
+
+** Iterator
+#+begin_src rust
+fn main() {
+    let numbers = vec![1, 2, 3, 4, 5];
+    // let plus_one = vec![];
+    // for num in number {
+    //     plus_one.push(num + 1)
+    // }
+
+    let plus_one_up: Vec<i32> = numbers
+        .iter()
+        .filter(|num| num >= &&3)
+        .map(|num| num + 1)
+        .collect();
+    println!("{:?}", plus_one_up);
+}
+#+end_src
+
+#+begin_src
+: [4, 5, 6]
+#+end_src
+
+** Range
+#+begin_src rust
+fn main() {
+    let range1 = 1..=3;
+    for i in range1 {
+        println!("i = {}", i);
+    }
+
+    let range2 = 1..3; // 1 -> n-1
+    for i in range2 {
+        println!("i2 = {}", i);
+    }
+
+    for i in 'a'..='f' {
+        println!("character = '{}'", i);
+    }
+}
+#+end_src
+
+#+begin_src
+i = 1
+i = 2
+i = 3
+i2 = 1
+i2 = 2
+character = 'a'
+character = 'b'
+character = 'c'
+character = 'd'
+character = 'e'
+#+end_src
+
+** If let
+#+begin_src rust
+fn main() {
+    let maybe_user = Some("Vu");
+    match maybe_user {
+        Some(name) => println!("{:?}", name),
+        None => println!("no user"),
+    }
+
+    if let Some(user) = maybe_user {
+        println!("{:?}", user);
+    } else {
+        println!("no user");
+    }
+}
+#+end_src
+
+* Managing Code
+** Modules
+#+begin_src rust
+mod testing1 {
+    pub fn say_hello() {
+        println!("Hello World");
+    }
+    pub fn say_goodbye() {
+        println!("Goodbye");
+    }
+}
+
+mod math {
+    fn add(a: i32, b: i32) -> i32 {
+        a + b
+    }
+    fn div(a: i32, b: i32) -> i32 {
+        a - b
+    }
+}
+
+fn main() {
+    use testing1::*;
+    testing1::say_hello();
+    testing1::say_goodbye();
+}
+#+end_src
+
+#+begin_src
+: Hello World
+: Goodbye
+#+end_src
+
+** Testing
+
+#+begin_src rust
+fn all_caps(word: &str) -> String {
+    word.to_uppercase()
+}
+
+fn main() {}
+
+#[cfg(test)]
+mod test {
+    use crate::all_caps;
+
+    #[test]
+    fn check_all_caps() {
+        let result = all_caps("hello");
+        assert_eq!(result, "HELLO".to_owned(), "String to be uppercase");
+    }
+}
+#+end_src
+
+** Input
+#+begin_src rust
+use std::io;
+
+fn get_input() -> io::Result<String> {
+    let mut buffer = String::new();
+    io::stdin().read_line(&mut buffer)?;
+    Ok(buffer.trim().to_owned())
+}
+
+fn main() {
+    let mut all_input = vec![];
+    let mut time_input = 0;
+    while time_input < 2 {
+        match get_input() {
+            Ok(words) => {
+                all_input.push(words);
+                time_input += 1;
+            }
+            Err(e) => println!("{:?}", e),
+        }
+    }
+
+    for input in all_input {
+        println!(
+            "Original {:?}, capitalized {:?}",
+            input,
+            input.to_uppercase()
+        );
+    }
+}
+#+end_src
+
+** Active Input
+#+begin_src rust
+use std::io;
+
+enum PowerState {
+    Off,
+    Sleep,
+    Reboot,
+    Shutdown,
+    Hibernate,
+}
+
+impl PowerState {
+    fn new(state: &str) -> Option<PowerState> {
+        let state = state.trim().to_lowercase();
+        match state.as_str() {
+            "off" => Some(PowerState::Off),
+            "sleep" => Some(PowerState::Sleep),
+            "reboot" => Some(PowerState::Reboot),
+            "shutdown" => Some(PowerState::Shutdown),
+            "hibernate" => Some(PowerState::Hibernate),
+            _ => None,
+        }
+    }
+}
+
+fn action_power(state: PowerState) {
+    use PowerState::*;
+    match state {
+        Off => println!("off"),
+        Sleep => println!("sleep"),
+        Reboot => println!("reboot"),
+        Shutdown => println!("shutdown"),
+        Hibernate => println!("hibernate"),
+    }
+}
+
+fn main() {
+    let mut buffer = String::new();
+    let input = io::stdin().read_line(&mut buffer);
+    if input.is_ok() {
+        match PowerState::new(&buffer) {
+            Some(state) => action_power(state),
+            None => println!("invalid"),
+        }
+    } else {
+        println!("error reading file");
+    }
+}
+#+end_src
+
+* Activity
+- Command line application to track students in a class
+  + Add, edit, view, remove
+- Focus using:
+  + enums, Options, Result, macth, interators, etc...
+  + Ownership, Borrowing issues
+  + Mutability
+#+begin_src
+======manage student======
+1. Add student
+2. View students
+3. Remove student
+4. Update student
+
+Enter selection:
+#+end_src
+
+#+begin_src rust
+use std::{collections::HashMap, io};
+
+#[derive(Clone, Debug)]
+pub struct Student {
+    name: String,
+    age: i32,
+}
+
+#[derive(Debug, Clone)]
+pub struct Class {
+    inner: HashMap<String, Student>,
+}
+
+impl Class {
+    fn new() -> Self {
+        Self {
+            inner: HashMap::new(),
+        }
+    }
+
+    fn add(&mut self, student: Student) {
+        self.inner.insert(student.name.to_owned(), student);
+    }
+
+    fn get_all(&self) -> Vec<&Student> {
+        self.inner.values().collect()
+    }
+    fn delete(&mut self, name: &str) -> bool {
+        self.inner.remove(name).is_some()
+    }
+    fn update(&mut self, name: &str, age: i32) -> bool {
+        match self.inner.get_mut(name) {
+            Some(name) => {
+                name.age = age;
+                true
+            }
+            None => false,
+        }
+    }
+}
+
+mod manager {
+    use crate::{get_input, get_input_int, Class, Student};
+
+    pub fn add_student(class: &mut Class) {
+        println!("please enter name student");
+        let name = match get_input() {
+            Some(name) => name,
+            None => return,
+        };
+        let age = match get_input_int() {
+            Some(age) => age,
+            None => return,
+        };
+        let student = Student { name, age };
+        class.add(student);
+    }
+    pub fn view_class(class: &Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+    }
+
+    pub fn del_student(class: &mut Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+        println!("please enter name you want remove");
+        let name = match get_input() {
+            Some(input) => input,
+            None => return,
+        };
+        if class.delete(&name) {
+            println!("remove student");
+        } else {
+            println!("not found");
+        }
+    }
+
+    pub fn edit_student(class: &mut Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+        println!("please enter name you want update");
+        let name = match get_input() {
+            Some(input) => input,
+            None => return,
+        };
+
+        println!("please enter age to edit");
+        let age = match get_input_int() {
+            Some(input) => input,
+            None => return,
+        };
+        if class.update(&name, age) {
+            println!("student has edit");
+        } else {
+            println!("not found");
+        }
+    }
+}
+
+fn get_input_int() -> Option<i32> {
+    println!("enter age of student");
+    let input = match get_input() {
+        Some(input) => input,
+        None => return None,
+    };
+
+    let parsed_input: Result<i32, _> = input.parse();
+    match parsed_input {
+        Ok(input) => Some(input),
+        Err(_) => None,
+    }
+}
+
+fn get_input() -> Option<String> {
+    let mut buffer = String::new();
+    while io::stdin().read_line(&mut buffer).is_err() {
+        println!("Please enter your data again");
+    }
+    let input = buffer.trim().to_owned();
+    if &input == "" {
+        None
+    } else {
+        Some(input)
+    }
+}
+
+enum MainMenu {
+    AddStudent,
+    ViewClass,
+    RemoveStudent,
+    UpdateStudent,
+}
+
+impl MainMenu {
+    fn choice(input: &str) -> Option<MainMenu> {
+        match input {
+            "1" => Some(MainMenu::AddStudent),
+            "2" => Some(MainMenu::ViewClass),
+            "3" => Some(MainMenu::RemoveStudent),
+            "4" => Some(MainMenu::UpdateStudent),
+            _ => None,
+        }
+    }
+    fn show_choice() {
+        println!("");
+        println!("== Class Manager ==");
+        println!("1. Add Student");
+        println!("2. View Class");
+        println!("3. Remove Student");
+        println!("4. Update Student");
+        println!("");
+        println!("Enter selection: ");
+    }
+}
+
+fn main() {
+    // let mut student = Class::new();
+    let mut student = Class::new();
+    loop {
+        MainMenu::show_choice();
+        let input = get_input().expect("No data");
+        match MainMenu::choice(input.as_str()) {
+            Some(MainMenu::AddStudent) => manager::add_student(&mut student),
+            Some(MainMenu::ViewClass) => manager::view_class(&student),
+            Some(MainMenu::RemoveStudent) => manager::del_student(&mut student),
+            Some(MainMenu::UpdateStudent) => manager::edit_student(&mut student),
+            None => return,
+        }
+    }
+}
+#+end_src
+
+* =Advanced Knowledge=
+* Shared Functionality
+** Trait
+*** Demo
+- Trait chỉ đơn giản là cách để xác định rằng một số chức năng đã tồn tại.
+- Chúng được sử dụng để tiêu chuẩn hoá các function trên nhiều loại khác nhau
+  + =Standardization Permits Function= giúp function có thể hoạt động trên nhiều
+    kiểu dữ liệu khác nhau.
+- Với function bình thường bạn phải viết nhiều function cho nhiều chức năng khác
+  nhau, nhưng nếu tất cả kiểu đó thể hiện 1 chức năng tương tự thì có thể sử
+  dụng =Trait=.
+#+begin_src rust
+trait Say {
+    fn make_say(&self);
+}
+
+fn hello(say: impl Say) {
+    say.make_say();
+}
+
+struct Person;
+impl Say for Person {
+    fn make_say(&self) {
+        println!("hello");
+    }
+}
+
+struct Dog;
+impl Say for Dog {
+    fn make_say(&self) {
+        println!("wofl wofl");
+    }
+}
+
+fn main() {
+    hello(Person {});
+    hello(Dog {});
+}
+#+end_src
+
+*** Activity
+#+begin_src rust
+trait Perimeter {
+    fn calculate_perimeter(&self) -> i32;
+}
+
+struct Square {
+    side: i32,
+}
+
+impl Square {
+    fn new(side: i32) -> Self {
+        Self { side }
+    }
+}
+
+impl Default for Square {
+    fn default() -> Self {
+        Self { side: 40 }
+    }
+}
+
+impl Perimeter for Square {
+    fn calculate_perimeter(&self) -> i32 {
+        self.side * 4
+    }
+}
+
+struct Triangle {
+    side_a: i32,
+    side_b: i32,
+    side_c: i32,
+}
+impl Perimeter for Triangle {
+    fn calculate_perimeter(&self) -> i32 {
+        self.side_a + self.side_b + self.side_c
+    }
+}
+
+fn print_perimeter(shape: impl Perimeter) {
+    let perimeter = shape.calculate_perimeter();
+    println!("perimeter : {:?}", perimeter);
+}
+
+fn main() {
+    let square = Square::default();
+    let triangle = Triangle {
+        side_a: 3,
+        side_b: 4,
+        side_c: 5,
+    };
+    print_perimeter(square);
+    print_perimeter(triangle);
+}
+#+end_src
+
+** Generic Function
+- Là function cho phép nhiều kiểu dữ liệu khác nhau được sử dụng làm tham số hàm.
+- Điều này giúp generic function không sử dụng 1 kiểu dữ liệu cụ thể làm tham số
+  như bình thường, mà sẽ sử dụng một trait để làm kiểu dữ liệu.
+  + Sau đó function sẽ được sử dụng với bất kỳ loại dữ liệu nào có triển khai trait.
+- Điều này có thể thực hiện được bởi vì các trait thể hiện hành vi, và generic
+  function có thể sử dụng behavior được xác định trên trait thay vì kiểu dữ liệu
+  rõ ràng.
+
+#+begin_src rust
+trait Move {
+    fn move_to(&self, x: i32, y: i32);
+}
+
+struct Snake;
+impl Move for Snake {
+    fn move_to(&self, x: i32, y: i32) {
+        println!("move to ({}, {})", x, y);
+    }
+}
+
+struct Dog;
+impl Move for Dog {
+    fn move_to(&self, x: i32, y: i32) {
+        println!("dog run to ({}, {})", x, y);
+    }
+}
+
+// fn make_move(click: impl Move, x: i32, y: i32) {
+//     click.move_to(x, y)
+// }
+
+// fn make_move<T: Move>(click: T, x: i32, y: i32) {
+//     click.move_to(x, y);
+// }
+
+fn make_move<T>(click: T, x: i32, y: i32)
+where
+    T: Move,
+{
+    click.move_to(x, y);
+}
+
+fn main() {
+    let rust = Snake {};
+    make_move(rust, 1, 2);
+}
+#+end_src
+
+** Generic Structures
+*** Generic Structures
+- Cho phép bạn lưu trữ bất kỳ loại dữ liệu nào trong một struct.
+- Giới hạn trong cấu trúc của trait là sự hạn chế các loại dữ liệu mà struct có
+  thể sử dụng.
+  + Các giới hạn trait này còn được gọi là "generic constraints": ràng buộc
+    chung.
+- Generic structure rất hữu ích khi tạo các data collection.
+#+begin_src rust
+struct Name<T: Trait1, U: Trait2> {
+    field1: T,
+    field2: U,
+}
+#+end_src
+
+*** Definition - DN
+#+begin_src rust
+trait Seat {
+    fn show(&self);
+}
+
+struct Ticket<T: Seat> {
+    location: T,
+}
+
+enum ConceptSeat {
+    FrontRow,
+    MidSection(i32),
+    Back(u32),
+}
+impl Seat for ConceptSeat {
+    fn show(&self) {
+        println!("Concept seat");
+    }
+}
+
+enum AirlineSeat {
+    BussinessClass,
+    Economy,
+    FirstClass,
+}
+impl Seat for AirlineSeat {
+    fn show(&self) {
+        println!("Airline seat");
+    }
+}
+
+// fn ticket_info(ticket: Ticket<AirlineSeat>) {
+//     ticket.location.show()
+// }
+
+fn ticket_info<T: Seat>(ticket: Ticket<T>) {
+    ticket.location.show()
+}
+
+fn main() {
+    let airline = Ticket {
+        location: AirlineSeat::BussinessClass,
+    };
+    let concept = Ticket {
+        location: ConceptSeat::FrontRow,
+    };
+    ticket_info(airline);
+    ticket_info(concept);
+}
+#+end_src
+
+*** Recap
+- Generic Structures cho phép lưu các struct có kiểu dữ liệu tuỳ ý.
+- Các kiểu dữ liệu này có thể thuộc bất kỳ kiểu dữ liệu nào, hoặc có thể bị ràng
+  buộc bởi các trait được thiết lập trên chính struct đó.
+- có 2 kiểu khởi tạo generic structures.
+#+begin_src rust
+struct Name<T: Trait1,U: Trait2> {
+    field1: T,
+    field2: U
+}
+
+struct Name<T, U>
+where
+    T: Trait1 + Trait2,
+    U: Trait2,
+    {
+        field1: T,
+        field2: U
+    }
+#+end_src
+
+*** impl Blocks
+- Khi triển khai impl trên generic structures chúng ta có 2 lựa chọn:
+  + Triển khai chung - =Generic implementation=
+    - Generic implementation cho phép thêm chức năng cho bất kỳ loại dữ liệu nào
+      có thể được sử dụng.
+  + Triển khai riêng - =Concrete implementation=
+    - Concrete implementation cho phép chức năng được thêm vào loại dữ liệu cụ
+      thể được chỉ ra như một phần của việc concrete implementation.
+    - Concrete implementation vẫn có thể bị hạn chế bởi các types có thể được sử
+      dụng với Generic structures.
+#+begin_src rust
+trait Game {
+    fn name(&self) -> String;
+}
+
+#[derive(Debug)]
+enum BoardGame {
+    Chess,
+    Monopoly,
+}
+impl Game for BoardGame {
+    fn name(&self) -> String {
+        "Board Game".to_owned()
+    }
+}
+
+#[derive(Debug)]
+enum VideoGame {
+    PlayStation,
+    Xbox,
+}
+
+impl Game for VideoGame {
+    fn name(&self) -> String {
+        "Video Game".to_owned()
+    }
+}
+
+#[derive(Debug)]
+struct PlayRoom<T: Game> {
+    game: T,
+}
+
+impl<T: Game> PlayRoom<T> {
+    pub fn cleanup(&self) {
+        println!("clean up {:?}", self.game.name());
+    }
+}
+
+fn main() {
+    let video_room = PlayRoom {
+        game: VideoGame::Xbox,
+    };
+
+    let board_room = PlayRoom {
+        game: BoardGame::Chess,
+    };
+    video_room.cleanup();
+    board_room.cleanup();
+}
+#+end_src
+
+*** Demo
+#+begin_src rust
+trait Body {}
+trait Color {}
+
+#[derive(Debug)]
+struct Vehicle<B: Body, C: Color> {
+    body: B,
+    color: C,
+}
+
+impl<B: Body, C: Color> Vehicle<B, C> {
+    pub fn new(body: B, color: C) -> Self {
+        Self { body, color }
+    }
+}
+
+#[derive(Debug)]
+struct Car;
+impl Body for Car {}
+
+#[derive(Debug)]
+struct Truck;
+impl Body for Truck {}
+
+#[derive(Debug)]
+struct Red;
+impl Color for Red {}
+
+#[derive(Debug)]
+struct Yellow;
+impl Color for Yellow {}
+
+fn main() {
+    let red_truck = Vehicle::new(Truck, Red);
+    let yellow_car = Vehicle::new(Car, Yellow);
+    println!("{:?}", red_truck);
+    println!("{:?}", yellow_car);
+}
+#+end_src
+#+title: Rust Day3
+#+author: Dang Quang Vu
+
+* [X] Activity
+CLOSED: [2022-08-14 Sun 20:28]
+- Command line application to track students in a class
+  + Add, edit, view, remove
+- Focus using:
+  + enums, Options, Result, macth, interators, etc...
+  + Ownership, Borrowing issues
+  + Mutability
+#+begin_src
+======manage student======
+1. Add student
+2. View students
+3. Remove student
+4. Update student
+
+Enter selection:
+#+end_src
+
+#+begin_src rust
+use std::{collections::HashMap, io};
+
+#[derive(Clone, Debug)]
+pub struct Student {
+    name: String,
+    age: i32,
+}
+
+#[derive(Debug, Clone)]
+pub struct Class {
+    inner: HashMap<String, Student>,
+}
+
+impl Class {
+    fn new() -> Self {
+        Self {
+            inner: HashMap::new(),
+        }
+    }
+
+    fn add(&mut self, student: Student) {
+        self.inner.insert(student.name.to_owned(), student);
+    }
+
+    fn get_all(&self) -> Vec<&Student> {
+        self.inner.values().collect()
+    }
+    fn delete(&mut self, name: &str) -> bool {
+        self.inner.remove(name).is_some()
+    }
+    fn update(&mut self, name: &str, age: i32) -> bool {
+        match self.inner.get_mut(name) {
+            Some(name) => {
+                name.age = age;
+                true
+            }
+            None => false,
+        }
+    }
+}
+
+mod manager {
+    use crate::{get_input, get_input_int, Class, Student};
+
+    pub fn add_student(class: &mut Class) {
+        println!("please enter name student");
+        let name = match get_input() {
+            Some(name) => name,
+            None => return,
+        };
+        let age = match get_input_int() {
+            Some(age) => age,
+            None => return,
+        };
+        let student = Student { name, age };
+        class.add(student);
+    }
+    pub fn view_class(class: &Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+    }
+
+    pub fn del_student(class: &mut Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+        println!("please enter name you want remove");
+        let name = match get_input() {
+            Some(input) => input,
+            None => return,
+        };
+        if class.delete(&name) {
+            println!("remove student");
+        } else {
+            println!("not found");
+        }
+    }
+
+    pub fn edit_student(class: &mut Class) {
+        for stu in class.get_all() {
+            println!("{:?}", stu);
+        }
+        println!("please enter name you want update");
+        let name = match get_input() {
+            Some(input) => input,
+            None => return,
+        };
+
+        println!("please enter age to edit");
+        let age = match get_input_int() {
+            Some(input) => input,
+            None => return,
+        };
+        if class.update(&name, age) {
+            println!("student has edit");
+        } else {
+            println!("not found");
+        }
+    }
+}
+
+fn get_input_int() -> Option<i32> {
+    println!("enter age of student");
+    let input = match get_input() {
+        Some(input) => input,
+        None => return None,
+    };
+
+    let parsed_input: Result<i32, _> = input.parse();
+    match parsed_input {
+        Ok(input) => Some(input),
+        Err(_) => None,
+    }
+}
+
+fn get_input() -> Option<String> {
+    let mut buffer = String::new();
+    while io::stdin().read_line(&mut buffer).is_err() {
+        println!("Please enter your data again");
+    }
+    let input = buffer.trim().to_owned();
+    if &input == "" {
+        None
+    } else {
+        Some(input)
+    }
+}
+
+enum MainMenu {
+    AddStudent,
+    ViewClass,
+    RemoveStudent,
+    UpdateStudent,
+}
+
+impl MainMenu {
+    fn choice(input: &str) -> Option<MainMenu> {
+        match input {
+            "1" => Some(MainMenu::AddStudent),
+            "2" => Some(MainMenu::ViewClass),
+            "3" => Some(MainMenu::RemoveStudent),
+            "4" => Some(MainMenu::UpdateStudent),
+            _ => None,
+        }
+    }
+    fn show_choice() {
+        println!("");
+        println!("== Class Manager ==");
+        println!("1. Add Student");
+        println!("2. View Class");
+        println!("3. Remove Student");
+        println!("4. Update Student");
+        println!("");
+        println!("Enter selection: ");
+    }
+}
+
+fn main() {
+    // let mut student = Class::new();
+    let mut student = Class::new();
+    loop {
+        MainMenu::show_choice();
+        let input = get_input().expect("No data");
+        match MainMenu::choice(input.as_str()) {
+            Some(MainMenu::AddStudent) => manager::add_student(&mut student),
+            Some(MainMenu::ViewClass) => manager::view_class(&student),
+            Some(MainMenu::RemoveStudent) => manager::del_student(&mut student),
+            Some(MainMenu::UpdateStudent) => manager::edit_student(&mut student),
+            None => return,
+        }
+    }
+}
+#+end_src
+
+* [X] Lifetimes
+CLOSED: [2022-08-14 Sun 20:28]
+** Lifetime
+- Lifetime là những gì compiler của rust sử dụng để theo dõi thời gian các tham
+  chiếu có giá trị. Checking Reference là một trong những trách nhiệm chính của
+  chức năng borrow checker's. Lifetime giúp cho borrow checker's đảm bảo giá trị
+  mượn của không bao giờ có các reference ko hợp lệ.
+- Tất cả dữ liệu trong rust đều có thời gian tồn tại nhưng trình biên dịch có thể tự
+  động tính toán thời gian tồn tại trong nhiều trường hợp. Vì vậy bạn thường
+  ko phải lúc nào cũng thấy nó trong code.
+#+begin_src rust
+//syntax
+const HANGSO: &'static i32 = 1124;
+struct Name<'a> {
+    field: &'a DataType,
+}
+
+fn add<'a,'b>(x: &'a i32, y: &'b i32) -> &'a i32 {
+    x + y
+}
+#+end_src
+- Convention use 'a, 'b, 'c
+- 'static is reserved
+  + 'static cho biết dữ liệu tồn tại trong bộ nhớ toàn bộ thời gian của trường
+    trình.
+- &'a sẽ thông báo với trình biên dịch rằng dữ liệu này sẽ vẫn còn tồn tại sau
+  khi structure này đã bị phá huỷ.
+** Why we need Lifetimes
+- Rust's onwership model
+- Borrow checker's sẽ đảm nhiệm việc cấp phát và giải phóng bộ nhớ và cũng đảm
+  bảo rằng không có tham chiếu nào được trỏ tới bộ nhớ đã được giải phóng.
+- Giống như borrow data, chúng được kiểm tra tại thời gian biên dịch, nên nếu
+  không hợp lệ sẽ không chạy được chường trình.
+- Lifetime cực kì quan trọng khi function trả về một tham chiếu, và khi Struct
+  chưa một dữ liệu tham chiếu.
+
+** Lifetimes Struct & impl
+- Demo
+#+begin_src rust
+#[derive(Debug)]
+struct Cards {
+    inner: Vec<IdCard>,
+}
+
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+enum City {
+    HCM,
+    HN,
+    DN,
+}
+
+#[derive(Debug)]
+struct IdCard {
+    name: String,
+    age: u8,
+    city: City,
+}
+
+impl IdCard {
+    pub fn new(name: &str, age: u8, city: City) -> Self {
+        Self {
+            name: name.to_string(),
+            age,
+            city,
+        }
+    }
+}
+
+fn new_ids() -> Cards {
+    Cards {
+        inner: vec![
+            IdCard::new("Dang", 27, City::HCM),
+            IdCard::new("Quang", 28, City::DN),
+            IdCard::new("Vu", 29, City::HN),
+            IdCard::new("Ok", 30, City::HN),
+            IdCard::new("Khong", 31, City::HCM),
+        ],
+    }
+}
+
+fn main() {
+    let ids = new_ids();
+}
+#+end_src
+
+- Active
+#+begin_src rust
+#[derive(Debug)]
+struct Cards {
+    inner: Vec<IdCard>,
+}
+
+#[derive(Debug, Eq, PartialEq, PartialOrd, Ord)]
+enum City {
+    HCM,
+    HN,
+    DN,
+}
+
+#[derive(Debug)]
+struct IdCard {
+    name: String,
+    age: u8,
+    city: City,
+}
+
+impl IdCard {
+    pub fn new(name: &str, age: u8, city: City) -> Self {
+        Self {
+            name: name.to_string(),
+            age,
+            city,
+        }
+    }
+}
+
+fn new_ids() -> Cards {
+    Cards {
+        inner: vec![
+            IdCard::new("Dang", 27, City::HCM),
+            IdCard::new("Quang", 28, City::DN),
+            IdCard::new("Vu", 29, City::HN),
+            IdCard::new("Ok", 30, City::HN),
+            IdCard::new("Khong", 31, City::HCM),
+        ],
+    }
+}
+
+#[derive(Debug)]
+struct YoungPeople<'a> {
+    inner: Vec<&'a IdCard>,
+}
+
+#[derive(Debug)]
+struct OldPeople<'a> {
+    inner: Vec<&'a IdCard>,
+}
+
+impl<'a> YoungPeople<'a> {
+    fn living_in_hcm(&self) -> Self {
+        Self {
+            inner: self
+                .inner
+                .iter()
+                .filter(|id| id.city == City::HCM)
+                .map(|id| *id)
+                .collect(),
+        }
+    }
+}
+
+fn main() {
+    let ids = new_ids();
+    let young = YoungPeople {
+        inner: ids.inner.iter().filter(|id| id.age <= 28).collect(),
+    };
+    for id in ids.inner.iter() {
+        println!("{:?}", id);
+    }
+
+    println!("\nyoung people\n");
+    for id in young.inner.iter() {
+        println!("{:?}", id);
+    }
+
+    println!("\n living in hcm");
+    for id in young.living_in_hcm().inner.iter() {
+        println!("{:?}", id);
+    }
+}
+#+end_src
+
+* [X] Shared Functionality
+CLOSED: [2022-08-14 Sun 20:57]
+** Trait
+*** Demo
+- Trait chỉ đơn giản là cách để xác định rằng một số chức năng đã tồn tại.
+- Chúng được sử dụng để tiêu chuẩn hoá các function trên nhiều loại khác nhau
+  + =Standardization Permits Function= giúp function có thể hoạt động trên nhiều
+    kiểu dữ liệu khác nhau.
+- Với function bình thường bạn phải viết nhiều function cho nhiều chức năng khác
+  nhau, nhưng nếu tất cả kiểu đó thể hiện 1 chức năng tương tự thì có thể sử
+  dụng =Trait=.
+#+begin_src rust
+trait Say {
+    fn make_say(&self);
+}
+
+fn hello(say: impl Say) {
+    say.make_say();
+}
+
+struct Person;
+impl Say for Person {
+    fn make_say(&self) {
+        println!("hello");
+    }
+}
+
+struct Dog;
+impl Say for Dog {
+    fn make_say(&self) {
+        println!("wofl wofl");
+    }
+}
+
+fn main() {
+    hello(Person {});
+    hello(Dog {});
+}
+#+end_src
+
+*** Activity
+#+begin_src rust
+trait Perimeter {
+    fn calculate_perimeter(&self) -> i32;
+}
+
+struct Square {
+    side: i32,
+}
+
+impl Square {
+    fn new(side: i32) -> Self {
+        Self { side }
+    }
+}
+
+impl Default for Square {
+    fn default() -> Self {
+        Self { side: 40 }
+    }
+}
+
+impl Perimeter for Square {
+    fn calculate_perimeter(&self) -> i32 {
+        self.side * 4
+    }
+}
+
+struct Triangle {
+    side_a: i32,
+    side_b: i32,
+    side_c: i32,
+}
+impl Perimeter for Triangle {
+    fn calculate_perimeter(&self) -> i32 {
+        self.side_a + self.side_b + self.side_c
+    }
+}
+
+fn print_perimeter(shape: impl Perimeter) {
+    let perimeter = shape.calculate_perimeter();
+    println!("perimeter : {:?}", perimeter);
+}
+
+fn main() {
+    let square = Square::default();
+    let triangle = Triangle {
+        side_a: 3,
+        side_b: 4,
+        side_c: 5,
+    };
+    print_perimeter(square);
+    print_perimeter(triangle);
+}
+#+end_src
+
+** Generic Function
+- Là function cho phép nhiều kiểu dữ liệu khác nhau được sử dụng làm tham số hàm.
+- Điều này giúp generic function không sử dụng 1 kiểu dữ liệu cụ thể làm tham số
+  như bình thường, mà sẽ sử dụng một trait để làm kiểu dữ liệu.
+  + Sau đó function sẽ được sử dụng với bất kỳ loại dữ liệu nào có triển khai trait.
+- Điều này có thể thực hiện được bởi vì các trait thể hiện hành vi, và generic
+  function có thể sử dụng behavior được xác định trên trait thay vì kiểu dữ liệu
+  rõ ràng.
+
+#+begin_src rust
+trait Move {
+    fn move_to(&self, x: i32, y: i32);
+}
+
+struct Snake;
+impl Move for Snake {
+    fn move_to(&self, x: i32, y: i32) {
+        println!("move to ({}, {})", x, y);
+    }
+}
+
+struct Dog;
+impl Move for Dog {
+    fn move_to(&self, x: i32, y: i32) {
+        println!("dog run to ({}, {})", x, y);
+    }
+}
+
+// fn make_move(click: impl Move, x: i32, y: i32) {
+//     click.move_to(x, y)
+// }
+
+// fn make_move<T: Move>(click: T, x: i32, y: i32) {
+//     click.move_to(x, y);
+// }
+
+fn make_move<T>(click: T, x: i32, y: i32)
+where
+    T: Move,
+{
+    click.move_to(x, y);
+}
+
+fn main() {
+    let rust = Snake {};
+    make_move(rust, 1, 2);
+}
+#+end_src
+
+** Generic Structures
+*** Generic Structures
+- Cho phép bạn lưu trữ bất kỳ loại dữ liệu nào trong một struct.
+- Giới hạn trong cấu trúc của trait là sự hạn chế các loại dữ liệu mà struct có
+  thể sử dụng.
+  + Các giới hạn trait này còn được gọi là "generic constraints": ràng buộc
+    chung.
+- Generic structure rất hữu ích khi tạo các data collection.
+#+begin_src rust
+struct Name<T: Trait1, U: Trait2> {
+    field1: T,
+    field2: U,
+}
+#+end_src
+
+*** Definition - DN
+#+begin_src rust
+trait Seat {
+    fn show(&self);
+}
+
+struct Ticket<T: Seat> {
+    location: T,
+}
+
+enum ConceptSeat {
+    FrontRow,
+    MidSection(i32),
+    Back(u32),
+}
+impl Seat for ConceptSeat {
+    fn show(&self) {
+        println!("Concept seat");
+    }
+}
+
+enum AirlineSeat {
+    BussinessClass,
+    Economy,
+    FirstClass,
+}
+impl Seat for AirlineSeat {
+    fn show(&self) {
+        println!("Airline seat");
+    }
+}
+
+// fn ticket_info(ticket: Ticket<AirlineSeat>) {
+//     ticket.location.show()
+// }
+
+fn ticket_info<T: Seat>(ticket: Ticket<T>) {
+    ticket.location.show()
+}
+
+fn main() {
+    let airline = Ticket {
+        location: AirlineSeat::BussinessClass,
+    };
+    let concept = Ticket {
+        location: ConceptSeat::FrontRow,
+    };
+    ticket_info(airline);
+    ticket_info(concept);
+}
+#+end_src
+
+*** Recap
+- Generic Structures cho phép lưu các struct có kiểu dữ liệu tuỳ ý.
+- Các kiểu dữ liệu này có thể thuộc bất kỳ kiểu dữ liệu nào, hoặc có thể bị ràng
+  buộc bởi các trait được thiết lập trên chính struct đó.
+- có 2 kiểu khởi tạo generic structures.
+#+begin_src rust
+struct Name<T: Trait1,U: Trait2> {
+    field1: T,
+    field2: U
+}
+
+struct Name<T, U>
+where
+    T: Trait1 + Trait2,
+    U: Trait2,
+    {
+        field1: T,
+        field2: U
+    }
+#+end_src
+
+*** impl Blocks
+- Khi triển khai impl trên generic structures chúng ta có 2 lựa chọn:
+  + Triển khai chung - =Generic implementation=
+    - Generic implementation cho phép thêm chức năng cho bất kỳ loại dữ liệu nào
+      có thể được sử dụng.
+  + Triển khai riêng - =Concrete implementation=
+    - Concrete implementation cho phép chức năng được thêm vào loại dữ liệu cụ
+      thể được chỉ ra như một phần của việc concrete implementation.
+    - Concrete implementation vẫn có thể bị hạn chế bởi các types có thể được sử
+      dụng với Generic structures.
+#+begin_src rust
+trait Game {
+    fn name(&self) -> String;
+}
+
+#[derive(Debug)]
+enum BoardGame {
+    Chess,
+    Monopoly,
+}
+impl Game for BoardGame {
+    fn name(&self) -> String {
+        "Board Game".to_owned()
+    }
+}
+
+#[derive(Debug)]
+enum VideoGame {
+    PlayStation,
+    Xbox,
+}
+
+impl Game for VideoGame {
+    fn name(&self) -> String {
+        "Video Game".to_owned()
+    }
+}
+
+#[derive(Debug)]
+struct PlayRoom<T: Game> {
+    game: T,
+}
+
+impl<T: Game> PlayRoom<T> {
+    pub fn cleanup(&self) {
+        println!("clean up {:?}", self.game.name());
+    }
+}
+
+fn main() {
+    let video_room = PlayRoom {
+        game: VideoGame::Xbox,
+    };
+
+    let board_room = PlayRoom {
+        game: BoardGame::Chess,
+    };
+    video_room.cleanup();
+    board_room.cleanup();
+}
+#+end_src
+
+*** Demo
+#+begin_src rust
+trait Body {}
+trait Color {}
+
+#[derive(Debug)]
+struct Vehicle<B: Body, C: Color> {
+    body: B,
+    color: C,
+}
+
+impl<B: Body, C: Color> Vehicle<B, C> {
+    pub fn new(body: B, color: C) -> Self {
+        Self { body, color }
+    }
+}
+
+#[derive(Debug)]
+struct Car;
+impl Body for Car {}
+
+#[derive(Debug)]
+struct Truck;
+impl Body for Truck {}
+
+#[derive(Debug)]
+struct Red;
+impl Color for Red {}
+
+#[derive(Debug)]
+struct Yellow;
+impl Color for Yellow {}
+
+fn main() {
+    let red_truck = Vehicle::new(Truck, Red);
+    let yellow_car = Vehicle::new(Car, Yellow);
+    println!("{:?}", red_truck);
+    println!("{:?}", yellow_car);
+}
+#+end_src
+
+* [X] Improving Program Reliability
+CLOSED: [2022-08-14 Sun 21:10]
+** Manual error creation
+#+begin_src rust
+#[derive(Debug)]
+enum LockError {
+    MechainError(i32),
+    NetworkError,
+    NotAuthorized,
+}
+
+use std::fmt;
+impl fmt::Display for LockError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::MechainError(code) => write!(f, "mechaine error: {}", code),
+            Self::NetworkError => write!(f, "network error"),
+            Self::NotAuthorized => write!(f, "authorized error"),
+        }
+    }
+}
+
+fn main() {}
+#+end_src
+
+** use 'thiserror' crate
+#+begin_src toml
+thiserror = "*"
+#+end_src
+
+#+begin_src rust
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+enum LockError {
+    #[error("Machine error: {0}")]
+    MachineError(i32),
+    #[error("Network error")]
+    Network(#[from] NetworkError),
+    #[error("Authorized error")]
+    NotAuthorized,
+}
+
+#[derive(Debug, Error)]
+enum NetworkError {
+    #[error("Connecting time out")]
+    TimeOut,
+    #[error("Unreachable")]
+    Unreachable,
+}
+
+fn maybe_some(a: Option<&str>) -> Result<String, LockError> {
+    if a.is_some() {
+        Ok("Is Some".to_owned())
+    } else {
+        Err(LockError::Network(NetworkError::TimeOut))
+    }
+}
+
+fn main() {
+    let some = None;
+    match maybe_some(some) {
+        Ok(data) => println!("{}", data),
+        Err(e) => println!("{}", e),
+    }
+}
+#+end_src
+
+* Array & Slices
+** Arrays
+- Arrays Đại diện cho một vùng bộ nhớ liền kề nhau nằm trên heap.
+- Tất cả phần từ của một array phải có cùng kích thước. nghĩa là các phần tử đó
+  phải chung 1 kiểu dữ liệu.
+- Các array không có dữ liệu dynamic.
+- Các dữ liệu của array được mã hoá cứng trong program trong hầu hết các trường
+  hợp.
+- Thông thường thì bạn sẽ muốn sử dụng vector hơn là array.
+- Tuy nhiên arrays rất hữu ích trong việc sử dụng trong networks protocol,
+  crypto algorithm, và matrices.
+
+#+begin_src rust
+fn main() {
+    let months = ["January", "February", "March", "April", "May", "June", "July",
+                  "August", "September", "October", "November", "December"];
+    let a: [i32; 5] = [1, 2, 3, 4, 5];
+}
+
+#+end_src
+
+** Slices
+- là dạng chế độ xem mượn dữ liệu từ arrays or String.
+- Slices có thể là tạo ra iterator.
+- Indices giới hạn bởi arrays.
+#+begin_src rust
+
+fn main() {
+    let months = ["January", "February", "March", "April", "May", "June", "July",
+                  "August", "September", "October", "November", "December"];
+    let a: [i32; 5] = [1, 2, 3, 4, 5];
+    let slice = &[a]
+}
+#+end_src
+#+title: Rust Day4
+#+author: Dang Quang Vu
+
+
+* Parallel Execution
+** Threads
+- Threads cho phép chương trình của bạn thực hiện nhiều phép tính đồng thời.
+*** Thread Basic
+- Quá trình thực thi luồng xảy ra nối tiếp, từng dòng mã được thực thi lần lượt
+  từng dòng. (one-by-one || line-by-line)
+- Multicore CPUs có thể có nhiều luồng
+- Mặc dù một CPU có thể có nhiều multicore nhưng mỗi thread vẫn thực thi mỗi
+  dòng tại một thời điểm. nhưng vì phần còn lại có thể thực thi cùng lúc nhiều
+  tác vụ có thể được thực hiện cùng 1 lúc.
+- Điều này dẫn tới việc sử dụng CPU tốt hơn có thể khiến cho chương trình của
+  bạn chạy nhanh hơn.
+- Các thread được cách ly hoàn toàn với nhau và cần phải thực hiện thêm các bước
+  để các thread có thể giao tiếp chuyển tải dữ liệu cho nhau.
+- Sự giao tiếp giữa các luồng cần được giảm thiểu vì quá nhiều luồng giao tiếp
+  với nhau có thể dẫn tới một chương trình đa luồng chạy chậm hơn chương trình
+  đơn luồng.
+*** Working with Threads
+- Quá trình sinh ra một thread được gọi là "spawned".
+- Chúng ta cũng có thể "spawned" nhiều thread hơn nhưng việc đi sâu vào làm việc
+  với nó và giao tiếp chúng sẽ khó khơn hơn.
+- Trong hầu hết các trường hợp, bạn sẽ spawned các thread của mình trên main
+  thread ( fn main() ).
+- Sau đó chương trình của bạn sẽ không còn thực thi từng dòng nữa khi sử dụng
+  các threads.
+- Bạn cần sẽ phải lên kế hoạch rõ ràng và cẩn thận để triển khai các luồng trong
+  1 chương trình.
+- Sau khi threads của các bạn được thực thi xong, nó sẽ cần trải qua một quá
+  trình gọi là "join". Nó cần phải "join" vào threads chính.
+- Đó là cách chúng ta đảm bảo rằng các công biệc trên thread được hoàn thành.
+*** Thread Memory
+- Threads có "thread-local" memory.
+  + Điều này có nghĩa là dữ liệu của thread có tính ownership, và không thể truy
+    cập được từ những thread khác.
+  + Bạn có thể move or copy các dữ liệu vào các thread và điều này thường được
+    thực hiện khi thread được spawned. Đây là cách dễ nhất để lấy dữ liệu vào
+    một thread và là phương pháp chính khi bạn bắt đầu lập trình multithread programming.
+  + Bất kỳ dữ liệu nào bạn move vào thread sẽ được lưu vào "thread-local" và bạn
+    sẽ không thể truy cập nó từ bên ngoài thread được nữa.
+  + Điều này cũng tương tự như bạn move dữ liệu vào một function, dữ liệu sau đó
+    sẽ không thể truy cập được nữa.
+*** Demo
+#+begin_src rust
+use std::thread;
+
+fn main() {
+    let iterations = 10;
+    let a = thread::spawn(move || {
+        for i in 1..=iterations {
+            println!("A: {}", i);
+        }
+    });
+
+    let b = thread::spawn(move || {
+        for i in 1..=iterations {
+            println!("       B: {}", i);
+        }
+    });
+    a.join();
+    b.join();
+}
+#+end_src
+
+#+begin_src rust
+use std::{
+    thread::{self, JoinHandle},
+    time::Duration,
+};
+
+fn main() {
+    let value: JoinHandle<usize> = thread::spawn(move || {
+        thread::sleep(Duration::from_secs(2));
+        27
+    });
+    println!("waiting for thread");
+    match value.join() {
+        Ok(n) => println!("{}", n),
+        Err(e) => println!("{:?}", e),
+    }
+}
+#+end_src
+
+** Channels
+- Các channels cho phép các thread dễ dàng giao tiếp với nhau.
+- Các channels cung cấp phương thức giao tiếp 1 chiều giữa các threads.
+- Chúng ta sử dụng "message passing" thông qua 2 điểm đầu cuối "Sender" & "Receiver".
+- Dữ liệu thông tin được đặt vào "sender" và chúng được đọc bởi "receiver",
+- Channels có thể hạn chế dung lượng cũng có thể không giới hạn dung lượng.
+- Giới hạn dung lượng của channels rất hữu ích khi bạn có nhiều threads đang
+  hoạt động.
+** crossbeam-channel
+#+begin_src toml
+[dependence]
+crossbeam-channel = "0.5.6"
+#+end_src
+
+- Các message có thể được gửi qua các channel thường được gói gọn trong một
+  enumeration. Mặc dù thông thường bạn có thể gửi bất kỳ dữ liệu nào qua một
+  channel nhưng sử dung enum sẽ giúp bạn gửi nhiều loại message khác nhau. và
+  bạn có thể dễ dàng =match= chúng.
+- Message passing qua các channel có thể là dạng blocking hoặc non-blocking.
+  + Blocking: nghĩa là code sẽ cố gắng thực hiện một behavior và đợi cho đến khi
+    nó thành công hoặc thất bại.
+  + Non-blocking: nghĩa là code sẽ cố gắng thực hiện một behavior và return ngay
+    lập tức dù nó có thành công hay không.
+- Nếu chúng ta block trên sender, điều này có nghĩa là channel đã full.
+- Còn nếu block trên receiver điều này có nghĩa là không có message nào để đọc
+  từ channel.
+- Blocking behavior được xác định bởi function call, không phải từ chính channel
+  đó.
+- Nếu ta sử dụng các blocking function trên channel chúng sẽ đợi nếu cần, sau đó
+  ta có thể sử dụng non-blocking function trên cùng 1 channel, chúng sẽ trở lại.
+  Điều này cho phép bạn mix & match tuỳ thuộc nào nhu cầu của chương trình.
+
+#+begin_src rust
+use crossbeam_channel::unbounded;
+use std::thread;
+
+enum ThreadMsg {
+    PrintData(String),
+    Sum(i32, i32),
+    Quit,
+}
+
+fn main() {
+    let (s, r) = unbounded();
+    let handle = thread::spawn(move || loop {
+        match r.recv() {
+            Ok(msg) => match msg {
+                ThreadMsg::PrintData(d) => println!("{}", d),
+                ThreadMsg::Sum(lhs, rhs) => println!("{} + {} = {}", lhs, rhs, lhs + rhs),
+                ThreadMsg::Quit => {
+                    println!("Thread termination");
+                    break;
+                }
+            },
+            Err(e) => {
+                println!("disconnected");
+                break;
+            }
+        }
+    });
+
+    s.send(ThreadMsg::PrintData("hello from main!".to_owned()));
+    s.send(ThreadMsg::Sum(10, 10));
+    s.send(ThreadMsg::Quit);
+
+    handle.join();
+}
+#+end_src
+
+* Shared Ownership
+** Smart Pointer
+- Cho phép bạn chia sẻ ownership của một dữ liệu.
+- Reference Counted - "Rc"
+  + Đây là một kỹ thuật đơn giản giúp gia tăng bộ đếm một khi có thêm owner được
+   thêm vào.
+  + Bất cứ khi nào owner bị xoá thì số lượng tham chiếu sẽ giảm.
+  + Khi nào bộ đếm về 0 thì dữ liệu sẽ bị drop.
+- Atomic Reference Counted - "Arc"
+  + An toàn khi sử dụng nó trên một thread.
+  + Atomic operation là các phép toán luôn thành công.
+
+#+begin_src rust
+use std::rc::Rc;
+
+#[derive(Debug)]
+struct Vehicle {
+    vin: String,
+}
+
+#[derive(Debug)]
+struct Door {
+    vehicle: Rc<Vehicle>,
+}
+
+fn main() {
+    let car = Rc::new(Vehicle {
+        vin: "123".to_owned(),
+    });
+
+    let left_door = Door {
+        vehicle: Rc::clone(&car),
+    };
+
+    let right_door = Door {
+        vehicle: Rc::clone(&car),
+    };
+
+    drop(car);
+
+    println!("vehicle = {:?}", left_door.vehicle);
+}
+#+end_src
+
+#+begin_src
+: vehicle = Vehicle { vin: "123" }
+#+end_src
+
+** Recap
+- =Rc= & =Arc= Được sử dụng để chia sẻ ownership.
+- Data sẽ bị drop khi toàn bộ owner bị xoá.
+- =Rc= thường dùng cho single thread.
+  + =Rc::clone(&self)= để tạo mới reference
+- =Arc= thường dùng cho multiple thread.
+  + =Arc::clone(&self)= để tạo mới reference
+* Cell & RefCell
+- Kiểu dữ liệu này cho phép bạn thay đổi dữ liệu được shared.
+- Đôi khi ban làm việc với keyword =mut= bạn sẽ nhận được vô số lỗi compiler
+- Các vấn đề liên quan tới ownership thường khó giải quyết.
+- Bạn có thể tạo =mut memory= vĩnh viễn những nó sẽ có nhiều hạn chế.
+- Việc sử dụng Cell & RefCell sẽ giúp bạn dễ dàng thay đổi dữ liệu nhưng sẽ đổi
+  lại một vấn đề về hiệu suất của program.
+** Cell
+- Cell giúp tạo một vị trí bộ nhớ có thể thay đổi vĩnh viễn, nó có thể thay đổi
+  kể cả khi bạn khởi tạo nó là immutable.
+- Bất cứ khi nào bạn truy cập dữ liệu trong =Cell=, bạn sẽ luôn =move= hoặc =copy= dữ
+  liệu.
+- Bạn không thể borrow dữ liệu từ một =Cell=, điều này có nghĩa là bạn sẽ cần phải
+  lấy cả =clone= và =copy= trên dữ liệu của bạn để lưu trữ trong một =Cell= trong hầu
+  hết các trường hợp.
+- Vì dữ liệu phải triển khai Copy,Clone nên nó thường ko thích hợp với dữ liệu
+  lớn. Bạn sẽ muốn giới hạn dữ liệu ở kích thước nhỏ.
+- Bạn sẽ muốn sử dụng =mut= nếu muốn loại bỏ bớt các vấn đề về hiệu suất.
+
+#+begin_src rust
+use std::cell::Cell;
+
+#[derive(Debug)]
+struct Book {
+    signed: Cell<bool>,
+}
+
+impl Book {
+    fn sign(&self) {
+        self.signed.set(true)
+    }
+    fn signed(&self) -> bool {
+        self.signed.get()
+    }
+}
+
+fn main() {
+    let my_book = Book {
+        signed: Cell::new(false),
+    };
+
+    println!("signed: {}", my_book.signed());
+    my_book.sign();
+    println!("signed: {}", my_book.signed());
+}
+#+end_src
+
+** RefCell
+- Giống như Cell nhưng nó chỉ luôn sử dụng borrowing dữ liệu chứ không =move= or =copy=.
+- Borrowed sẽ được kiểm tra trong runtime thay bì compiletime.
+- Điều đó dẫn tới việc đánh đổi về hiệu suất nếu bạn triển khai và có thể có
+  nguy cơ sảy ra panic nếu bạn vô tính mượn sai.
+- Các quy tắc borrow checker vẫn được áp dụng.
+  + Bạn chỉ có thể có 1 RefCell mutable.
+- Bạn chỉ nên sử dụng RefCell thì thật sự cần thiết.
+- RefCell không an toàn cho Thread vì vậy bạn chỉ nên sử dụng nó trên
+  single-thread.
+#+begin_src rust
+use std::cell::RefCell;
+
+struct Person {
+    name: RefCell<String>,
+}
+
+fn main() {
+    let name = "Vu".to_owned();
+    let person = Person {
+        name: RefCell::new(name),
+    };
+
+    // let name = person.name.borrow();
+    {
+        let mut name = person.name.borrow_mut();
+        *name = "Dang Quang".to_owned();
+        println!("{}", name);
+    }
+    {
+        person.name.replace("Dang Quang Vu".to_owned());
+        println!("{:?}", person.name);
+    }
+}
+#+end_src
+
+#+begin_src
+: Dang Quang
+: RefCell { value: "Dang Quang Vu" }
+#+end_src
+
+** Recap
+- Cell & RefCell cho phép tạo dữ liệu mutable vĩnh viễn.
+  + =Cell= return owned data
+  + =RefCell= return borrowed data
+- RefCell borrowing có thể làm chương trình bị panic trong runtime.
+  + try_borrow & try_borrow_mut sẽ không sảy ra việc panicking
+- Bạn nên sử dụng mut và &mut
+  + Bạn chỉ nên sử dụng Cell & RefCell khi không thể tránh.
+
+** Demo
+#+begin_src rust
+use std::cell::{Cell, RefCell};
+use std::rc::Rc;
+
+#[derive(Debug)]
+enum MenuItem {
+    Drink,
+    Salad,
+}
+
+#[derive(Debug)]
+struct ItemOder {
+    item: MenuItem,
+    quantity: i32,
+}
+
+#[derive(Debug)]
+struct TableOrder {
+    items: Vec<ItemOder>,
+}
+
+fn new_table_order() -> TableOrder {
+    TableOrder {
+        items: vec![ItemOder {
+            item: MenuItem::Drink,
+            quantity: 3,
+        }],
+    }
+}
+
+type Order = Rc<RefCell<Vec<TableOrder>>>;
+
+#[derive(Debug)]
+struct Chef(Order);
+
+#[derive(Debug)]
+struct WaitStaff(Order);
+
+#[derive(Debug)]
+struct Accounting(Order);
+
+fn main() {
+    let orders = Rc::new(RefCell::new(vec![]));
+    let chef = Chef(Rc::clone(&orders));
+    let waitstaff = WaitStaff(Rc::clone(&orders));
+    let accounting = Accounting(Rc::clone(&orders));
+
+    let order = new_table_order();
+
+    {
+        orders.borrow_mut().push(order);
+    }
+    dbg!(chef.0.borrow());
+    drop(chef);
+
+    dbg!(waitstaff.0.borrow());
+    drop(waitstaff);
+
+    dbg!(accounting.0.borrow());
+}
+#+end_src
+
+* Threads & Mutex
+- Như bạn đã biết Thread thực thi mã dạng không xác định, có nghĩa nó chúng có
+  thể đọc và ghi dữ liệu 1 cách ngẫu nhiên.
+- Có thể shared data giữa các thread nhưng dữ liệu có thể bị hỏng vì không có gì
+  đảm bảo là dữ liệu được đọc hoặc ghi theo thứ tự thích hợp.
+- Điều này khiến cho việc code thread trở nên khó khăn hơn.
+** Synchronization
+- Mutex - Mutually Exclusive lock
+- Mutex sử dụng Atomic Operation để đảm bảo rằng dữ liệu chỉ được truy cập bởi 1
+  thread duy nhất tại 1 thời điểm.
+** Mutex
+- Mutexes là wrap data ( tương tự Option, Result ).
+  + Only one Thread được truy cập vào 1 thời điểm
+  + Khi dữ liệu mutex được truy cập bởi 1 thread, nó sẽ ngăn chặn các threah
+    khác truy cập.
+- Mutexes không thể chia sẻ dữ liệu giữa các thread.
+  + Bạn chỉ có thể share dữ liệu đi wrap nó trong một SmartPointer ( Arc ).
+- Use parking_lot để khởi tạo một Mutex.
+
+#+begin_src rust
+use parking_lot::Mutex;
+use std::sync::Arc;
+use std::thread;
+
+struct Counter(usize);
+
+fn main() {
+    let counter = Counter(0);
+    let shared_counter = Arc::new(Mutex::new(counter));
+
+    let thread1_counter = Arc::clone(&shared_counter);
+    let thread2_counter = shared_counter.clone();
+
+    let thread1 = thread::spawn(move || {
+        let mut counter = thread1_counter.lock();
+        counter.0 += 1;
+    });
+
+    let thread2 = thread::spawn(move || {
+        let mut counter = thread2_counter.lock();
+        counter.0 += 1;
+    });
+
+    thread1.join().and_then(|_| thread2.join());
+    println!("{}", shared_counter.lock().0);
+}
+#+end_src
